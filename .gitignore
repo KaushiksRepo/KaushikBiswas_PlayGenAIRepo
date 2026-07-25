@@ -1,0 +1,49 @@
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Reports
+reports/allure-results/
+reports/allure-report/
+reports/html/
+reports/json/
+reports/screenshots/
+
+# Logs
+logs/
+
+# Auth storage state
+auth/*.json
+!auth/.gitkeep
+
+# Environment files (keep examples)
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+playwright/.auth/
+
+# TypeScript
+*.tsbuildinfo
+
+# Videos & traces
+videos/
+traces/
