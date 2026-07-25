@@ -1,0 +1,7 @@
+export enum AgentType {
+    PLANNER = "PLANNER",
+    GENERATOR = "GENERATOR",
+    REVIEWER = "REVIEWER",
+    HEALER = "HEALER",
+    REPORTER = "REPORTER"
+}
