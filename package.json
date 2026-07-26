@@ -27,28 +27,51 @@
     "clean": "rimraf reports/ logs/ auth/*.json",
     "pretest": "rimraf reports/allure-results"
   },
-  "keywords": ["playwright", "cucumber", "bdd", "automation", "typescript", "enterprise"],
+  "keywords": [
+    "playwright",
+    "cucumber",
+    "bdd",
+    "automation",
+    "typescript",
+    "enterprise"
+  ],
   "type": "commonjs",
   "dependencies": {
     "@faker-js/faker": "^9.7.0",
-    "dotenv": "^16.5.0",
-    "winston": "^3.17.0"
+    "dotenv": "^16.6.1",
+    "openai": "^6.49.0",
+    "winston": "^3.17.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@playwright/test": "^1.61.1",
     "@cucumber/cucumber": "^11.2.0",
+    "@playwright/test": "^1.61.1",
     "@types/node": "^26.1.1",
-    "typescript": "^5.8.3",
-    "ts-node": "^10.9.2",
-    "allure-cucumberjs": "^3.0.0",
-    "allure-js-commons": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "^8.35.0",
     "@typescript-eslint/parser": "^8.35.0",
-    "eslint": "^8.57.0",
+    "allure-cucumberjs": "^3.0.0",
+    "allure-js-commons": "^3.0.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.57.1",
     "eslint-config-prettier": "^10.1.0",
     "eslint-plugin-playwright": "^2.2.0",
-    "prettier": "^3.5.0",
-    "cross-env": "^7.0.3",
-    "rimraf": "^6.0.1"
-  }
+    "prettier": "^3.9.6",
+    "rimraf": "^6.0.1",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.23.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10"
+  },
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaushikbiswasgit/KaushikBiswas_PlayGenAI.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kaushikbiswasgit/KaushikBiswas_PlayGenAI/issues"
+  },
+  "homepage": "https://github.com/kaushikbiswasgit/KaushikBiswas_PlayGenAI#readme"
 }

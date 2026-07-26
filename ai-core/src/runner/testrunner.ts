@@ -7,12 +7,11 @@ async function main() {
     const aiCore = new AICore();
 
     const response = await aiCore.execute({
-        agent: AgentType.PLANNER,
-        provider: Provider.OPENAI,
-        model: "gpt-5.5",
-        task: "Generate Test Cases",
-        input: "Generate login test cases."
-    });
+    provider: Provider.OPENAI,
+    model: "gpt-5.5",
+    template: "planner",
+    input: "Generate login test cases.",
+});
 
     console.log(response);
 }

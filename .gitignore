@@ -47,3 +47,9 @@ playwright/.auth/
 # Videos & traces
 videos/
 traces/
+
+#API KEYS
+node_modules/
+dist/
+.env
+

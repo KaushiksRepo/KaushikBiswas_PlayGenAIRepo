@@ -2,8 +2,8 @@ import OpenAI from "openai";
 
 import { AIConfig } from "../config/aiconfig";
 import { ILLMProvider } from "../Interfaces/LLMProvider";
-import { PromptRequest } from "../models/PromptRequest";
-import { PromptResponse } from "../models/PromptResponse";
+import { AIRequest } from "../models/AIRequest";
+import { AIResponse } from "../models/AIResponse";
 
 export class OpenAIProvider implements ILLMProvider {
 
@@ -15,7 +15,7 @@ export class OpenAIProvider implements ILLMProvider {
         });
     }
 
-    async generate(request: PromptRequest): Promise<PromptResponse> {
+    async generate(request: AIRequest): Promise<AIResponse> {
 
         try {
 

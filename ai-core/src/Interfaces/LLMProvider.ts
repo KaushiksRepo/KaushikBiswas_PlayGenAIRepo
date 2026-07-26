@@ -1,6 +1,6 @@
-import { PromptRequest } from "../models/PromptRequest";
-import { PromptResponse } from "../models/PromptResponse";
+import { AIRequest } from "../models/AIRequest";
+import { AIResponse } from "../models/AIResponse";
 
 export interface ILLMProvider {
-    generate(request: PromptRequest): Promise<PromptResponse>;
+    generate(request: AIRequest): Promise<AIResponse>;
 }
