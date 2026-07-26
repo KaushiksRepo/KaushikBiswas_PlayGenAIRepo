@@ -1,5 +1,5 @@
 import { AIResponse } from "../models/AIResponse";
-import { ValidationResult } from "./validationresult";
+import { ValidationResult } from "./ValidationResult";
 
 export class ResponseValidator {
 
