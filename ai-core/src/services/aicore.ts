@@ -25,6 +25,9 @@ export class AICore {
 
 const validation = this.responseValidator.validate(response);
 
+console.log(validation);
+
+
 if (!validation.valid) {
     return {
         ...response,
