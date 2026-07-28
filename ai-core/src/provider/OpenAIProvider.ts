@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 
-import { AIConfig } from "../config/aiconfig";
+import { AIConfig } from "../config/AIConfig";
 import { ILLMProvider } from "../Interfaces/LLMProvider";
 import { AIRequest } from "../models/AIRequest";
 import { AIResponse } from "../models/AIResponse";

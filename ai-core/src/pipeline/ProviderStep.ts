@@ -1,6 +1,7 @@
 import { ExecutionContext } from "./ExecutionContext";
 import { ExecutionStep } from "./ExecutionStep";
 import { ProviderFactory } from "../factories/ProviderFactory";
+import { RetryExecutor } from "../retry/RetryExecutor";
 
 export class ProviderStep implements ExecutionStep {
 
@@ -14,9 +15,19 @@ export class ProviderStep implements ExecutionStep {
             context.request.provider
         );
 
-        context.response = await provider.generate({
+        const retryExecutor = new RetryExecutor();
+
+context.response = await retryExecutor.execute(
+    () =>
+        provider.generate({
             ...context.request,
-            input: context.prompt
-        });
+            input: context.prompt!
+        }),
+    {
+        maxAttempts: 3,
+        delayInMillis: 1000,
+        exponentialBackoff: true
+    }
+);
     }
 }
