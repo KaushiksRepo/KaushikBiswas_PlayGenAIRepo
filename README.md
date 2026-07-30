@@ -1,24 +1,47 @@
-import { PlaywrightExecutor } from "./playwright/Executor/PlaywrightExecutor";
-import { ExecutionRequest } from "./playwright/Models/ExecutionRequest";
+import { ExecutionRequest } from "../Models/ExecutionRequest";
+import { ExecutionResult } from "../Models/ExecutionResult";
+import { ExecutionContext } from "./Pipeline/ExecutionContext";
+import { ExecutionPipeline } from "./Pipeline/ExecutionPipeline";
+import { ValidationStep } from "./Pipeline/ValidationStep";
+import { CommandExecutionStep } from "./Pipeline/CommandExecutionStep";
+import { ResultAggregationStep } from "./Pipeline/ResultAggregationStep";
+import { CommandBuilder } from "./Command/CommandBuilder";
+import { CommandRunner } from "./Command/CommandRunner";
+import { PlaywrightReportParser } from "./Parser/PlaywrightReportParser";
 
-async function main() {
+export class PlaywrightExecutor {
 
-    const executor = new PlaywrightExecutor();
+    private readonly pipeline: ExecutionPipeline;
 
-    const request: ExecutionRequest = {
-        projectRoot: "V:\\PlayGenAI\\sample-playwright-project",
-        browser: "chromium",
-        headed: false,
-        workers: 1,
-        retries: 0,
-        timeout: 30000
-    };
+    constructor() {
 
-    const result = await executor.execute(request);
+        this.pipeline = new ExecutionPipeline([
 
-    console.log("Framework execution completed.");
-    console.log(result);
+            new ValidationStep(),
+
+            new CommandExecutionStep(
+                new CommandBuilder(),
+                new CommandRunner()
+            ),
+
+            new ResultAggregationStep(
+                new PlaywrightReportParser()
+            )
+
+        ]);
+
+    }
+
+    async execute(
+        request: ExecutionRequest
+    ): Promise<ExecutionResult> {
+
+        const context = new ExecutionContext(request);
+
+        await this.pipeline.execute(context);
+
+        return context.result!;
+
+    }
 
 }
-
-main().catch(console.error);
