@@ -1,62 +1,117 @@
-import { ExecutionContext } from "./ExecutionContext";
-import { ExecutionStep } from "./ExecutionStep";
-import { ExecutionStatus } from "../../Models/ExecutionStatus";
-import { PlaywrightReportParser } from "../Parser/PlaywrightReportParser";
-
-export class ResultAggregationStep implements ExecutionStep {
-
-    constructor(
-        private readonly reportParser: PlaywrightReportParser
-    ) {}
-
-    async execute(
-        context: ExecutionContext
-    ): Promise<void> {
-
-        const testResults = await this.reportParser.parse(
-            context.request.projectRoot
-        );
-
-        const passedTests = testResults.filter(
-            t => t.status === "PASSED"
-        ).length;
-
-        const failedTests = testResults.filter(
-            t => t.status === "FAILED"
-        ).length;
-
-        const skippedTests = testResults.filter(
-            t => t.status === "SKIPPED"
-        ).length;
-
-        context.result = {
-
-            status: context.exitCode === 0
-                ? ExecutionStatus.SUCCESS
-                : ExecutionStatus.FAILED,
-
-            exitCode: context.exitCode,
-
-            executionTime: context.endTime - context.startTime,
-
-            passedTests,
-
-            failedTests,
-
-            skippedTests,
-
-            consoleLogs: context.stdout
-                ? context.stdout.split("\n")
-                : [],
-
-            errors: context.stderr
-                ? context.stderr.split("\n")
-                : [],
-
-            testResults
-
-        };
-
-    }
-
+{
+  status: 'SUCCESS',
+  exitCode: 0,
+  executionTime: 14397,
+  passedTests: 0,
+  failedTests: 0,
+  skippedTests: 0,
+  consoleLogs: [
+    '{',
+    '  "config": {',
+    '    "argv": [',
+    '      "C:\\\\Program Files\\\\nodejs\\\\node.exe",',
+    '      "V:\\\\PlayGenAI\\\\sample-playwright-project\\\\node_modules\\\\@playwright\\\\test\\\\cli.js",',
+    '      "test",',
+    '      "--project=chromium",',
+    '      "--workers=1",',
+    '      "--retries=0",',
+    '      "--timeout=30000",',
+    '      "--reporter=json",',
+    '      "--output=playwright-results"',
+    '    ],',
+    '    "configFile": "V:\\\\PlayGenAI\\\\sample-playwright-project\\\\playwright.config.ts",',
+    '    "rootDir": "V:/PlayGenAI/sample-playwright-project/tests",',
+    '    "failOnFlakyTests": false,',
+    '    "forbidOnly": false,',
+    '    "fullyParallel": true,',
+    '    "globalSetup": null,',
+    '    "globalTeardown": null,',
+    '    "globalTimeout": 0,',
+    '    "grep": {},',
+    '    "grepInvert": null,',
+    '    "maxFailures": 0,',
+    '    "metadata": {',
+    '      "actualWorkers": 1',
+    '    },',
+    '    "preserveOutput": "always",',
+    '    "projects": [',
+    '      {',
+    '        "outputDir": "V:/PlayGenAI/sample-playwright-project/playwright-results",',
+    '        "repeatEach": 1,',
+    '        "retries": 0,',
+    '        "metadata": {',
+    '          "actualWorkers": 1',
+    '        },',
+    '        "id": "chromium",',
+    '        "name": "chromium",',
+    '        "testDir": "V:/PlayGenAI/sample-playwright-project/tests",',
+    '        "testIgnore": [],',
+    '        "testMatch": [',
+    '          "**/*.@(spec|test).?(c|m)[jt]s?(x)"',
+    '        ],',
+    '        "timeout": 30000',
+    '      },',
+    '      {',
+    '        "outputDir": "V:/PlayGenAI/sample-playwright-project/playwright-results",',
+    '        "repeatEach": 1,',
+    '        "retries": 0,',
+    '        "metadata": {',
+    '          "actualWorkers": 1',
+    '        },',
+    '        "id": "firefox",',
+    '        "name": "firefox",',
+    '        "testDir": "V:/PlayGenAI/sample-playwright-project/tests",',
+    '        "testIgnore": [],',
+    '        "testMatch": [',
+    '          "**/*.@(spec|test).?(c|m)[jt]s?(x)"',
+    '        ],',
+    '        "timeout": 30000',
+    '      },',
+    '      {',
+    '        "outputDir": "V:/PlayGenAI/sample-playwright-project/playwright-results",',
+    '        "repeatEach": 1,',
+    '        "retries": 0,',
+    '        "metadata": {',
+    '          "actualWorkers": 1',
+    '        },',
+    '        "id": "webkit",',
+    '        "name": "webkit",',
+    '        "testDir": "V:/PlayGenAI/sample-playwright-project/tests",',
+    '        "testIgnore": [],',
+    '        "testMatch": [',
+    '          "**/*.@(spec|test).?(c|m)[jt]s?(x)"',
+    '        ],',
+    '        "timeout": 30000',
+    '      }',
+    '    ],',
+    '    "quiet": false,',
+    '    "reporter": [',
+    '      [',
+    '        "json"',
+    '      ]',
+    '    ],',
+    '    "reportSlowTests": {',
+    '      "max": 5,',
+    '      "threshold": 300000',
+    '    },',
+    '    "shard": null,',
+    '    "tags": [],',
+    '    "updateSnapshots": "missing",',
+    '    "updateSourceMethod": "patch",',
+    '    "version": "1.62.1",',
+    '    "workers": 1,',
+    '    "webServer": null',
+    '  },',
+    '  "suites": [',
+    '    {',
+    '      "title": "example.spec.ts",',
+    '      "file": "example.spec.ts",',
+    ... 85 more items
+  ],
+  errors: [
+    'npm notice run sample-playwright-project@1.0.0 npx',
+    'npm notice run playwright test --project=chromium --workers=1 --retries=0 --timeout=30000 --reporter=json --output=playwright-results',
+    ''
+  ],
+  testResults: []
 }
