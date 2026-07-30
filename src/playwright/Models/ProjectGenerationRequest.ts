@@ -1,9 +1,9 @@
-import { GeneratorResponse } from "../../agents/generator/GeneratorResponse";
+import { GeneratedArtifact } from "./GeneratedArtifact";
 
 export interface ProjectGenerationRequest {
 
-    generatorResponse: GeneratorResponse;
-
     projectRoot: string;
+
+    artifacts: GeneratedArtifact[];
 
 }

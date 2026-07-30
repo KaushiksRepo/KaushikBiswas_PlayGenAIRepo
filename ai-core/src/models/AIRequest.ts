@@ -1,4 +1,3 @@
-import { AgentType } from "./AgentType";
 import { Provider } from "./Provider";
 import { AIOptions } from "./AIOptions";
 
