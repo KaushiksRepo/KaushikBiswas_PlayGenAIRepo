@@ -1,46 +1,61 @@
-import { ExecutionRequest } from "../Models/ExecutionRequest";
-import { ExecutionResult } from "../Models/ExecutionResult";
-import { ExecutionContext } from "./Pipeline/ExecutionContext";
-import { ExecutionPipeline } from "./Pipeline/ExecutionPipeline";
-import { ValidationStep } from "./Pipeline/ValidationStep";
-import { CommandExecutionStep } from "./Pipeline/CommandExecutionStep";
-import { ResultAggregationStep } from "./Pipeline/ResultAggregationStep";
-import { CommandBuilder } from "./Command/CommandBuilder";
-import { CommandRunner } from "./Command/CommandRunner";
-import { PlaywrightReportParser } from "./Parser/PlaywrightReportParser";
+import { ExecutionContext } from "./ExecutionContext";
+import { ExecutionStep } from "./ExecutionStep";
+import { ExecutionStatus } from "../../Models/ExecutionStatus";
+import { PlaywrightReportParser } from "../Parser/PlaywrightReportParser";
 
-export class PlaywrightExecutor {
+export class ResultAggregationStep implements ExecutionStep {
 
-    private readonly pipeline: ExecutionPipeline;
-
-    constructor() {
-
-        this.pipeline = new ExecutionPipeline([
-
-            new ValidationStep(),
-
-            new CommandExecutionStep(
-                new CommandBuilder(),
-                new CommandRunner()
-            ),
-
-            new ResultAggregationStep(
-                new PlaywrightReportParser()
-            )
-
-        ]);
-
-    }
+    constructor(
+        private readonly reportParser: PlaywrightReportParser
+    ) {}
 
     async execute(
-        request: ExecutionRequest
-    ): Promise<ExecutionResult> {
+        context: ExecutionContext
+    ): Promise<void> {
 
-        const context = new ExecutionContext(request);
+        const testResults = this.reportParser.parse(
+    context.stdout
+);
 
-        await this.pipeline.execute(context);
+        const passedTests = testResults.filter(
+            t => t.status === "PASSED"
+        ).length;
 
-        return context.result!;
+        const failedTests = testResults.filter(
+            t => t.status === "FAILED"
+        ).length;
+
+        const skippedTests = testResults.filter(
+            t => t.status === "SKIPPED"
+        ).length;
+
+        context.result = {
+
+            status: context.exitCode === 0
+                ? ExecutionStatus.SUCCESS
+                : ExecutionStatus.FAILED,
+
+            exitCode: context.exitCode,
+
+            executionTime: context.endTime - context.startTime,
+
+            passedTests,
+
+            failedTests,
+
+            skippedTests,
+
+            consoleLogs: context.stdout
+                ? context.stdout.split("\n")
+                : [],
+
+            errors: context.stderr
+                ? context.stderr.split("\n")
+                : [],
+
+            testResults
+
+        };
 
     }
 
