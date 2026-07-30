@@ -1,7 +1,7 @@
 {
   status: 'SUCCESS',
   exitCode: 0,
-  executionTime: 13328,
+  executionTime: 11778,
   passedTests: 0,
   failedTests: 0,
   skippedTests: 0,
