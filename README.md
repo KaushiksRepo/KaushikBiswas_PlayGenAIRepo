@@ -1,84 +1,61 @@
-import { promises as fs } from "fs";
-import * as path from "path";
-import { TestResult } from "../../Models/TestResult";
+import { ExecutionContext } from "./ExecutionContext";
+import { ExecutionStep } from "./ExecutionStep";
+import { ExecutionStatus } from "../../Models/ExecutionStatus";
+import { PlaywrightReportParser } from "../Parser/PlaywrightReportParser";
 
-export class PlaywrightReportParser {
+export class ResultAggregationStep implements ExecutionStep {
 
-    async parse(projectRoot: string): Promise<TestResult[]> {
+    constructor(
+        private readonly reportParser: PlaywrightReportParser
+    ) {}
 
-        const reportPath = path.join(projectRoot, "playwright-report.json");
+    async execute(
+        context: ExecutionContext
+    ): Promise<void> {
 
-        try {
+        const testResults = await this.reportParser.parse(
+            context.request.projectRoot
+        );
 
-            const reportExists = await fs.access(reportPath)
-                .then(() => true)
-                .catch(() => false);
+        const passedTests = testResults.filter(
+            t => t.status === "PASSED"
+        ).length;
 
-            if (!reportExists) {
-                return [];
-            }
+        const failedTests = testResults.filter(
+            t => t.status === "FAILED"
+        ).length;
 
-            const reportContent = await fs.readFile(reportPath, "utf8");
-            const report = JSON.parse(reportContent);
+        const skippedTests = testResults.filter(
+            t => t.status === "SKIPPED"
+        ).length;
 
-            return this.extractTestResults(report);
+        context.result = {
 
-        } catch {
+            status: context.exitCode === 0
+                ? ExecutionStatus.SUCCESS
+                : ExecutionStatus.FAILED,
 
-            return [];
+            exitCode: context.exitCode,
 
-        }
+            executionTime: context.endTime - context.startTime,
 
-    }
+            passedTests,
 
-    private extractTestResults(report: any): TestResult[] {
+            failedTests,
 
-        const results: TestResult[] = [];
+            skippedTests,
 
-        const suites = report?.suites ?? [];
+            consoleLogs: context.stdout
+                ? context.stdout.split("\n")
+                : [],
 
-        for (const suite of suites) {
+            errors: context.stderr
+                ? context.stderr.split("\n")
+                : [],
 
-            for (const spec of suite.specs ?? []) {
+            testResults
 
-                for (const test of spec.tests ?? []) {
-
-                    results.push({
-
-                        testName: spec.title,
-
-                        status: this.mapStatus(test.status),
-
-                        duration: test.results?.[0]?.duration ?? 0,
-
-                        errorMessage: test.results?.[0]?.error?.message
-
-                    });
-
-                }
-
-            }
-
-        }
-
-        return results;
-
-    }
-
-    private mapStatus(status: string): "PASSED" | "FAILED" | "SKIPPED" {
-
-        switch (status) {
-
-            case "passed":
-                return "PASSED";
-
-            case "skipped":
-                return "SKIPPED";
-
-            default:
-                return "FAILED";
-
-        }
+        };
 
     }
 
