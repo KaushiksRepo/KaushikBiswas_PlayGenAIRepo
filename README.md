@@ -1,28 +1,15 @@
-import * as path from "path";
-import { FileSystemService } from "../FileSystem/FileSystemService";
-import { GeneratedArtifact } from "../Models/GeneratedArtifact";
+export interface FileSystemService {
 
-export class SpecFileWriter {
+    createDirectory(path: string): Promise<void>;
 
-    constructor(
-        private readonly fileSystemService: FileSystemService
-    ) {}
+    writeFile(path: string, content: string): Promise<void>;
 
-    async write(
-        projectRoot: string,
-        artifact: GeneratedArtifact
-    ): Promise<void> {
+    readFile(path: string): Promise<string>;
 
-        const filePath = path.join(
-            projectRoot,
-            artifact.relativePath
-        );
+    updateFile(path: string, content: string): Promise<void>;
 
-        await this.fileSystemService.writeFile(
-            filePath,
-            artifact.content
-        );
+    deleteFile(path: string): Promise<void>;
 
-    }
+    exists(path: string): Promise<boolean>;
 
 }
