@@ -1,42 +1,10 @@
-import { AIRequest } from "../models/AIRequest";
-import { AIResponse } from "../models/AIResponse";
-import { ProviderFactory } from "../factories/ProviderFactory";
-import { PromptEngine } from "./PromptEngine";
-import { ResponseValidator } from "../validation/ResponseValidator";
+import { Provider } from "./Provider";
+import { AIOptions } from "./AIOptions";
 
-export class AICore {
-
-    private promptEngine = new PromptEngine();
-    private responseValidator = new ResponseValidator();
-
-    async execute(request: AIRequest): Promise<AIResponse> {
-
-        const finalPrompt = this.promptEngine.build(
-            request.template,
-            request.input
-        );
-
-        const provider = ProviderFactory.create(request.provider);
-
-        const response = await provider.generate({
-    ...request,
-    input: finalPrompt
-});
-
-const validation = this.responseValidator.validate(response);
-
-console.log(validation);
-
-
-if (!validation.valid) {
-    return {
-        ...response,
-        success: false,
-        error: validation.message
-    };
-}
-
-return response;
-
-    }
+export interface AIRequest {
+    provider: Provider;
+    model: string;
+    template: string;
+    input: string;
+    options?: AIOptions;
 }
