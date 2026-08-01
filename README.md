@@ -1,48 +1,33 @@
-import OpenAI from "openai";
-
-import { AIConfig } from "../config/AIConfig";
-import { ILLMProvider } from "../Interfaces/LLMProvider";
-import { AIRequest } from "../models/AIRequest";
 import { AIResponse } from "../models/AIResponse";
+import { ValidationResult } from "./ValidationResult";
 
-export class OpenAIProvider implements ILLMProvider {
+export class ResponseValidator {
 
-    private readonly client: OpenAI;
+    validate(response: AIResponse): ValidationResult {
 
-    constructor() {
-        this.client = new OpenAI({
-            apiKey: AIConfig.getOpenAIApiKey()
-        });
-    }
-
-    async generate(request: AIRequest): Promise<AIResponse> {
-
-        try {
-
-            const response = await this.client.responses.create({
-                model: request.model,
-                input: request.input
-            });
-
+        if (!response.success) {
             return {
-                success: true,
-                provider: request.provider,
-                model: request.model,
-                output: response.output_text
+                valid: false,
+                message: response.error ?? "Unknown provider error."
             };
-
-        } catch (error) {
-
-            return {
-                success: false,
-                provider: request.provider,
-                model: request.model,
-                output: "",
-                error: error instanceof Error ? error.message : "Unknown error"
-            };
-
         }
 
-    }
+        if (!response.output) {
+            return {
+                valid: false,
+                message: "Provider returned an empty response."
+            };
+        }
 
+        if (response.output.trim().length === 0) {
+            return {
+                valid: false,
+                message: "Provider returned blank content."
+            };
+        }
+
+        return {
+            valid: true
+        };
+    }
 }
