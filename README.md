@@ -1,19 +1,13 @@
-export enum ArtifactType {
-    SPEC = "SPEC",
-    PAGE = "PAGE",
-    FIXTURE = "FIXTURE",
-    DATA = "DATA",
-    CONFIG = "CONFIG"
-}
+import { ArtifactType } from "../Models/ArtifactType";
+import { GeneratedArtifact } from "../Models/GeneratedArtifact";
 
+export interface ArtifactWriter {
 
+    supports(type: ArtifactType): boolean;
 
-import { GeneratedArtifact } from "./GeneratedArtifact";
-
-export interface ProjectGenerationRequest {
-
-    projectRoot: string;
-
-    artifacts: GeneratedArtifact[];
+    write(
+        projectRoot: string,
+        artifact: GeneratedArtifact
+    ): Promise<void>;
 
 }
