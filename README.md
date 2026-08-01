@@ -1,75 +1,125 @@
-import { PlannerAgent } from "../agents/planner/PlannerAgent";
-import { GeneratorAgent } from "../agents/generator/GeneratorAgent";
-import { ReviewerAgent } from "../agents/reviewer/ReviewerAgent";
-import { HealerAgent } from "../agents/healer/HealerAgent";
+import { AICore } from "../../../ai-core/src/services/aicore";
+import { GeneratorRequest } from "./GeneratorRequest";
+import { GeneratorResponse } from "./GeneratorResponse";
+import { GeneratorRequestMapper } from "./GeneratorRequestMapper";
+import { GeneratorResponseMapper } from "./GeneratorResponseMapper";
 
-import { AIWorkflowRequest } from "./AIWorkflowRequest";
-import { AIWorkflowResponse } from "./AIWorkflowResponse";
-import { WorkflowContext } from "./WorkflowContext";
+export class GeneratorAgent {
 
-export class AIOrchestrator {
+    private readonly requestMapper = new GeneratorRequestMapper();
+
+    private readonly responseMapper = new GeneratorResponseMapper();
 
     constructor(
-
-        private readonly planner: PlannerAgent,
-
-        private readonly generator: GeneratorAgent,
-
-        private readonly reviewer: ReviewerAgent,
-
-        private readonly healer: HealerAgent
-
+        private readonly aiCore: AICore
     ) {}
 
-    async execute(
-        request: AIWorkflowRequest
-    ): Promise<AIWorkflowResponse> {
+    async generate(
+        request: GeneratorRequest
+    ): Promise<GeneratorResponse> {
 
-        const context: WorkflowContext = {
-            requirement: request.requirement
-        };
+        const aiRequest = this.requestMapper.map(request);
 
-        // Step 1 - Planning
+        const aiResponse = await this.aiCore.execute(aiRequest);
 
-        const plannerResponse = await this.planner.plan({
-            requirement: context.requirement
-        });
+        return this.responseMapper.map(aiResponse);
 
-        context.testPlan = plannerResponse.testPlan;
+    }
 
-        // Step 2 - Code Generation
+}
 
-        const generatorResponse = await this.generator.generate({
-            testPlan: context.testPlan
-        });
 
-        context.generatedCode = generatorResponse.generatedCode;
 
-        // Step 3 - Review
+import { AICore } from "../../../ai-core/src/services/aicore";
+import { HealerRequest } from "./HealerRequest";
+import { HealerResponse } from "./HealerResponse";
+import { HealerRequestMapper } from "./HealerRequestMapper";
+import { HealerResponseMapper } from "./HealerResponseMapper";
 
-        const reviewerResponse = await this.reviewer.review({
-            generatedCode: context.generatedCode
-        });
+export class HealerAgent {
 
-        context.reviewComments = reviewerResponse.reviewComments;
+    private readonly requestMapper = new HealerRequestMapper();
 
-        // Step 4 - Healing
+    private readonly responseMapper = new HealerResponseMapper();
 
-        const healerResponse = await this.healer.heal({
+    constructor(
+        private readonly aiCore: AICore
+    ) {}
 
-            generatedCode: context.generatedCode,
+    async heal(
+        request: HealerRequest
+    ): Promise<HealerResponse> {
 
-            reviewComments: context.reviewComments
+        const aiRequest = this.requestMapper.map(request);
 
-        });
+        const aiResponse = await this.aiCore.execute(aiRequest);
 
-        context.healedCode = healerResponse.healedCode;
+        return this.responseMapper.map(aiResponse);
 
-        return {
+    }
 
-            finalCode: context.healedCode
+}
 
-        };
+
+
+
+
+import { AICore } from "../../../ai-core/src/services/aicore";
+import { PlannerRequest } from "./PlannerRequest";
+import { PlannerResponse } from "./PlannerResponse";
+import { PlannerRequestMapper } from "./PlannerRequestMapper";
+import { PlannerResponseMapper } from "./PlannerResponseMapper";
+
+
+export class PlannerAgent {
+
+    private readonly requestMapper = new PlannerRequestMapper();
+
+    private readonly responseMapper = new PlannerResponseMapper();
+
+    constructor(
+        private readonly aiCore: AICore
+    ) {}
+
+    async plan(request: PlannerRequest): Promise<PlannerResponse> {
+
+        const aiRequest = this.requestMapper.toAIRequest(request);
+
+        const aiResponse = await this.aiCore.execute(aiRequest);
+
+        return this.responseMapper.map(aiResponse);
+    }
+
+}
+
+
+
+
+import { AICore } from "../../../ai-core/src/services/aicore";
+import { ReviewerRequest } from "./ReviewerRequest";
+import { ReviewerResponse } from "./ReviewerResponse";
+import { ReviewerRequestMapper } from "./ReviewerRequestMapper";
+import { ReviewerResponseMapper } from "./ReviewerResponseMapper";
+
+export class ReviewerAgent {
+
+    private readonly requestMapper = new ReviewerRequestMapper();
+
+    private readonly responseMapper = new ReviewerResponseMapper();
+
+    constructor(
+        private readonly aiCore: AICore
+    ) {}
+
+    async review(
+        request: ReviewerRequest
+    ): Promise<ReviewerResponse> {
+
+        const aiRequest = this.requestMapper.map(request);
+
+        const aiResponse = await this.aiCore.execute(aiRequest);
+
+        return this.responseMapper.map(aiResponse);
 
     }
 
