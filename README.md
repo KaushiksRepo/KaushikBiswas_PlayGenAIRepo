@@ -1,125 +1,36 @@
-import { PlaywrightExecutor } from "./playwright/Executor/PlaywrightExecutor";
-import { ExecutionRequest } from "./playwright/Models/ExecutionRequest";
-
-async function main() {
-
-    const executor = new PlaywrightExecutor();
-
-    const request: ExecutionRequest = {
-        projectRoot: "V:\\PlayGenAI\\sample-playwright-project",
-        browser: "chromium",
-        headed: false,
-        workers: 1,
-        retries: 0,
-        timeout: 30000
-    };
-
-    const result = await executor.execute(request);
-
-    console.log("Framework execution completed.");
-    console.log(result);
-
-}
-
-main().catch(console.error);
+PS V:\PlayGenAI> npx ts-node src/RunFramework.ts
+npm notice run playgenai@1.0.0 npx
+npm notice run ts-node src/RunFramework.ts
+========== PLANNER ==========
+Error: OPENAI_API_KEY is not configured.
+    at AIConfig.getOpenAIApiKey (V:\PlayGenAI\ai-core\src\config\AIConfig.ts:12:19)
+    at new OpenAIProvider (V:\PlayGenAI\ai-core\src\provider\OpenAIProvider.ts:14:30)
+    at ProviderFactory.create (V:\PlayGenAI\ai-core\src\factories\ProviderFactory.ts:12:24)
+    at AICore.execute (V:\PlayGenAI\ai-core\src\services\aicore.ts:19:42)
+    at PlannerAgent.plan (V:\PlayGenAI\src\agents\planner\PlannerAgent.ts:22:46)
+    at main (V:\PlayGenAI\src\RunFramework.ts:22:41)
+    at Object.<anonymous> (V:\PlayGenAI\src\RunFramework.ts:42:1)
+    at Module._compile (node:internal/modules/cjs/loader:1830:14)
+    at Module.m._compile (V:\PlayGenAI\node_modules\ts-node\src\index.ts:1618:23)
+    at node:internal/modules/cjs/loader:1961:10
 
 
 
+    import dotenv from "dotenv";
 
-import { promises as fs } from "fs";
-import * as path from "path";
-import { FileSystemService } from "./FileSystemService";
+dotenv.config();
 
-export class NodeFileSystemService implements FileSystemService {
+export class AIConfig {
 
-    async createDirectory(directoryPath: string): Promise<void> {
-        await fs.mkdir(directoryPath, { recursive: true });
-    }
+    static getOpenAIApiKey(): string {
 
-    async writeFile(filePath: string, content: string): Promise<void> {
+        const apiKey = process.env.OPENAI_API_KEY;
 
-        await this.createDirectory(path.dirname(filePath));
-
-        await fs.writeFile(filePath, content, "utf8");
-
-    }
-
-    async readFile(filePath: string): Promise<string> {
-        return await fs.readFile(filePath, "utf8");
-    }
-
-    async updateFile(filePath: string, content: string): Promise<void> {
-        await fs.writeFile(filePath, content, "utf8");
-    }
-
-    async deleteFile(filePath: string): Promise<void> {
-        await fs.unlink(filePath);
-    }
-
-    async exists(filePath: string): Promise<boolean> {
-
-        try {
-
-            await fs.access(filePath);
-
-            return true;
-
-        } catch {
-
-            return false;
-
+        if (!apiKey) {
+            throw new Error("OPENAI_API_KEY is not configured.");
         }
 
-    }
-
-}
-
-
-
-
-import { ArtifactWriter } from "../Writers/ArtifactWriter";
-import { ProjectGenerationRequest } from "../Models/ProjectGenerationRequest";
-import { ProjectGenerationResponse } from "../Models/ProjectGenerationResponse";
-
-export class PlaywrightProjectGenerator {
-
-    constructor(
-        private readonly writers: ArtifactWriter[]
-    ) {}
-
-    async generate(
-        request: ProjectGenerationRequest
-    ): Promise<ProjectGenerationResponse> {
-
-        const generatedFiles: string[] = [];
-
-        for (const artifact of request.artifacts) {
-
-            const writer = this.writers.find(writer =>
-                writer.supports(artifact.type)
-            );
-
-            if (!writer) {
-                throw new Error(
-                    `No writer found for artifact type ${artifact.type}`
-                );
-            }
-
-            await writer.write(
-                request.projectRoot,
-                artifact
-            );
-
-            generatedFiles.push(artifact.relativePath);
-
-        }
-
-        return {
-            success: true,
-            projectLocation: request.projectRoot,
-            generatedFiles
-        };
-
+        return apiKey;
     }
 
 }
