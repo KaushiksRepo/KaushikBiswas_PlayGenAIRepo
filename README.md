@@ -1,10 +1,12 @@
-import { Provider } from "./Provider";
-import { AIOptions } from "./AIOptions";
+export interface AIResponse {
+    success: boolean;
+    output: string;
+    error?: string;
 
-export interface AIRequest {
-    provider: Provider;
+    provider: string;
     model: string;
-    template: string;
-    input: string;
-    options?: AIOptions;
+
+    inputTokens?: number;
+    outputTokens?: number;
+    totalTokens?: number;
 }
