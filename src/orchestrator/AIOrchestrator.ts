@@ -5,7 +5,6 @@ import { HealerAgent } from "../agents/healer/HealerAgent";
 
 import { AIWorkflowRequest } from "./AIWorkflowRequest";
 import { AIWorkflowResponse } from "./AIWorkflowResponse";
-import { WorkflowContext } from "./WorkflowContext";
 
 export class AIOrchestrator {
 
@@ -21,56 +20,30 @@ export class AIOrchestrator {
 
     ) {}
 
-    async execute(
-        request: AIWorkflowRequest
-    ): Promise<AIWorkflowResponse> {
+   async execute(
+    request: AIWorkflowRequest
+): Promise<AIWorkflowResponse> {
 
-        const context: WorkflowContext = {
+    const plannerResponse =
+        await this.planner.plan({
             requirement: request.requirement
-        };
-
-        // Step 1 - Planning
-
-        const plannerResponse = await this.planner.plan({
-            requirement: context.requirement
         });
 
-        context.testPlan = plannerResponse.testPlan;
-
-        // Step 2 - Code Generation
-
-        const generatorResponse = await this.generator.generate({
-            testPlan: context.testPlan
+    const generatorResponse =
+        await this.generator.generate({
+            testPlan: plannerResponse.testPlan
         });
 
-        context.generatedCode = generatorResponse.generatedCode;
+    return {
 
-        // Step 3 - Review
+        generatedCode:
+            generatorResponse.generatedCode,
 
-        const reviewerResponse = await this.reviewer.review({
-            generatedCode: context.generatedCode
-        });
+        finalCode:
+            generatorResponse.generatedCode
 
-        context.reviewComments = reviewerResponse.reviewComments;
+    };
 
-        // Step 4 - Healing
-
-        const healerResponse = await this.healer.heal({
-
-            generatedCode: context.generatedCode,
-
-            reviewComments: context.reviewComments
-
-        });
-
-        context.healedCode = healerResponse.healedCode;
-
-        return {
-
-            finalCode: context.healedCode
-
-        };
-
-    }
+}
 
 }

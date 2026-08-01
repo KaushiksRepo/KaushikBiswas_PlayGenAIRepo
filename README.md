@@ -1,74 +1,44 @@
-import { PlannerAgent } from "../agents/planner/PlannerAgent";
-import { GeneratorAgent } from "../agents/generator/GeneratorAgent";
-import { ReviewerAgent } from "../agents/reviewer/ReviewerAgent";
-import { HealerAgent } from "../agents/healer/HealerAgent";
+import { ArtifactWriter } from "../Writers/ArtifactWriter";
+import { ProjectGenerationRequest } from "../Models/ProjectGenerationRequest";
+import { ProjectGenerationResponse } from "../Models/ProjectGenerationResponse";
 
-import { AIWorkflowRequest } from "./AIWorkflowRequest";
-import { AIWorkflowResponse } from "./AIWorkflowResponse";
-import { WorkflowContext } from "./WorkflowContext";
-
-export class AIOrchestrator {
+export class PlaywrightProjectGenerator {
 
     constructor(
-
-        private readonly planner: PlannerAgent,
-
-        private readonly generator: GeneratorAgent,
-
-        private readonly reviewer: ReviewerAgent,
-
-        private readonly healer: HealerAgent
-
+        private readonly writers: ArtifactWriter[]
     ) {}
 
-    async execute(
-        request: AIWorkflowRequest
-    ): Promise<AIWorkflowResponse> {
+    async generate(
+        request: ProjectGenerationRequest
+    ): Promise<ProjectGenerationResponse> {
 
-        const context: WorkflowContext = {
-            requirement: request.requirement
-        };
+        const generatedFiles: string[] = [];
 
-        // Step 1 - Planning
+        for (const artifact of request.artifacts) {
 
-        const plannerResponse = await this.planner.plan({
-            requirement: context.requirement
-        });
+            const writer = this.writers.find(writer =>
+                writer.supports(artifact.type)
+            );
 
-        context.testPlan = plannerResponse.testPlan;
+            if (!writer) {
+                throw new Error(
+                    `No writer found for artifact type ${artifact.type}`
+                );
+            }
 
-        // Step 2 - Code Generation
+            await writer.write(
+                request.projectRoot,
+                artifact
+            );
 
-        const generatorResponse = await this.generator.generate({
-            testPlan: context.testPlan
-        });
+            generatedFiles.push(artifact.relativePath);
 
-        context.generatedCode = generatorResponse.generatedCode;
-
-        // Step 3 - Review
-
-        const reviewerResponse = await this.reviewer.review({
-            generatedCode: context.generatedCode
-        });
-
-        context.reviewComments = reviewerResponse.reviewComments;
-
-        // Step 4 - Healing
-
-        const healerResponse = await this.healer.heal({
-
-            generatedCode: context.generatedCode,
-
-            reviewComments: context.reviewComments
-
-        });
-
-        context.healedCode = healerResponse.healedCode;
+        }
 
         return {
-
-            finalCode: context.healedCode
-
+            success: true,
+            projectLocation: request.projectRoot,
+            generatedFiles
         };
 
     }
@@ -76,35 +46,31 @@ export class AIOrchestrator {
 }
 
 
-export interface AIWorkflowRequest {
+import { ArtifactType } from "../Models/ArtifactType";
+import { GeneratedArtifact } from "../Models/GeneratedArtifact";
 
-    requirement: string;
+export interface ArtifactWriter {
 
-    execute?: boolean;
+    supports(type: ArtifactType): boolean;
 
-    review?: boolean;
-
-    heal?: boolean;
+    write(
+        projectRoot: string,
+        artifact: GeneratedArtifact
+    ): Promise<void>;
 
 }
 
 
-import { ExecutionResult } from "../playwright/Models/ExecutionResult";
-import { ReviewResult } from "../agents/reviewer/Reviewer_Models/ReviewResult";
-import { HealResult } from "../agents/healer/Models/HealResult";
 
-export interface WorkflowContext {
+import { ArtifactType } from "./ArtifactType";
+export interface GeneratedArtifact {
 
-    requirement: string;
+    fileName: string;
 
-    testPlan?: string;
+    relativePath: string;
 
-    generatedCode?: string;
+    type: ArtifactType;
 
-    executionResult?: ExecutionResult;
-
-    reviewResult?: ReviewResult;
-
-    healResult?: HealResult;
+    content: string;
 
 }
