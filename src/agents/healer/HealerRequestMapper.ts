@@ -1,23 +1,20 @@
 import { AIRequest } from "../../../ai-core/src/models/AIRequest";
 import { Provider } from "../../../ai-core/src/models/Provider";
-import { HealerRequest } from "./HealerRequest";
 
 export class HealerRequestMapper {
 
-    map(request: HealerRequest): AIRequest {
+    map(prompt: string): AIRequest {
 
         return {
+
             provider: Provider.OPENAI,
+
             model: "gpt-5.5",
+
             template: "healer",
-            input:
-`Generated Playwright Code:
 
-${request.generatedCode}
+            input: prompt
 
-Review Feedback:
-
-${request.reviewComments}`
         };
 
     }

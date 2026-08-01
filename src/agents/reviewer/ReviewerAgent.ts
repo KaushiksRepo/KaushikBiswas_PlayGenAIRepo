@@ -1,10 +1,22 @@
 import { AICore } from "../../../ai-core/src/services/aicore";
-import { ReviewerRequest } from "./ReviewerRequest";
-import { ReviewerResponse } from "./ReviewerResponse";
+
+import { ExecutionResult } from "../../playwright/Models/ExecutionResult";
+
+import { FailureAnalyzer } from "./Analyzer/FailureAnalyzer";
+import { ReviewPromptBuilder } from "./Prompt/ReviewPromptBuilder";
+
 import { ReviewerRequestMapper } from "./ReviewerRequestMapper";
 import { ReviewerResponseMapper } from "./ReviewerResponseMapper";
 
+import { ReviewResult } from "./Reviewer_Models/ReviewResult";
+import { FailureType } from "./Reviewer_Models/FailureType";
+import { Severity } from "./Reviewer_Models/Severity";
+
 export class ReviewerAgent {
+
+    private readonly failureAnalyzer = new FailureAnalyzer();
+
+    private readonly promptBuilder = new ReviewPromptBuilder();
 
     private readonly requestMapper = new ReviewerRequestMapper();
 
@@ -15,12 +27,45 @@ export class ReviewerAgent {
     ) {}
 
     async review(
-        request: ReviewerRequest
-    ): Promise<ReviewerResponse> {
+        executionResult: ExecutionResult
+    ): Promise<ReviewResult> {
 
-        const aiRequest = this.requestMapper.map(request);
+        if (executionResult.status === "SUCCESS") {
 
-        const aiResponse = await this.aiCore.execute(aiRequest);
+            return {
+
+                failureType: FailureType.NONE,
+
+                probableRootCause: "No issues detected.",
+
+                confidence: 100,
+
+                suggestedFix: "",
+
+                shouldHeal: false,
+
+                severity: Severity.LOW,
+
+                aiExplanation: "All tests executed successfully."
+
+            };
+
+        }
+
+        const analysis =
+            this.failureAnalyzer.analyze(executionResult);
+
+        const prompt =
+            this.promptBuilder.build(
+                executionResult,
+                analysis
+            );
+
+        const aiRequest =
+            this.requestMapper.map(prompt);
+
+        const aiResponse =
+            await this.aiCore.execute(aiRequest);
 
         return this.responseMapper.map(aiResponse);
 

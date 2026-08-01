@@ -1,28 +1,44 @@
 import { AICore } from "../../../ai-core/src/services/aicore";
-import { HealerRequest } from "./HealerRequest";
-import { HealerResponse } from "./HealerResponse";
+
+import { HealRequest } from "./Models/HealRequest";
+import { HealResult } from "./Models/HealResult";
+
+import { HealPromptBuilder } from "./Prompt/HealPromptBuilder";
+
 import { HealerRequestMapper } from "./HealerRequestMapper";
 import { HealerResponseMapper } from "./HealerResponseMapper";
 
 export class HealerAgent {
 
-    private readonly requestMapper = new HealerRequestMapper();
+    private readonly promptBuilder =
+        new HealPromptBuilder();
 
-    private readonly responseMapper = new HealerResponseMapper();
+    private readonly requestMapper =
+        new HealerRequestMapper();
+
+    private readonly responseMapper =
+        new HealerResponseMapper();
 
     constructor(
         private readonly aiCore: AICore
     ) {}
 
     async heal(
-        request: HealerRequest
-    ): Promise<HealerResponse> {
+        request: HealRequest
+    ): Promise<HealResult> {
 
-        const aiRequest = this.requestMapper.map(request);
+        const prompt =
+            this.promptBuilder.build(request);
 
-        const aiResponse = await this.aiCore.execute(aiRequest);
+        const aiRequest =
+            this.requestMapper.map(prompt);
 
-        return this.responseMapper.map(aiResponse);
+        const aiResponse =
+            await this.aiCore.execute(aiRequest);
+
+        return this.responseMapper.map(
+            aiResponse
+        );
 
     }
 

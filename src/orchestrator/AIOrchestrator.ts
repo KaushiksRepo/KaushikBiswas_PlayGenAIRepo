@@ -1,7 +1,5 @@
 import { PlannerAgent } from "../agents/planner/PlannerAgent";
 import { GeneratorAgent } from "../agents/generator/GeneratorAgent";
-import { ReviewerAgent } from "../agents/reviewer/ReviewerAgent";
-import { HealerAgent } from "../agents/healer/HealerAgent";
 
 import { AIWorkflowRequest } from "./AIWorkflowRequest";
 import { AIWorkflowResponse } from "./AIWorkflowResponse";
@@ -14,9 +12,6 @@ export class AIOrchestrator {
 
         private readonly generator: GeneratorAgent,
 
-        private readonly reviewer: ReviewerAgent,
-
-        private readonly healer: HealerAgent
 
     ) {}
 

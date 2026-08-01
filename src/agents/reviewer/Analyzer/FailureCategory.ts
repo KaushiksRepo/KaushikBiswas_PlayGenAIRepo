@@ -1,0 +1,23 @@
+export enum FailureCategory {
+
+    LOCATOR = "LOCATOR",
+
+    ASSERTION = "ASSERTION",
+
+    TIMEOUT = "TIMEOUT",
+
+    API = "API",
+
+    NETWORK = "NETWORK",
+
+    AUTHENTICATION = "AUTHENTICATION",
+
+    NAVIGATION = "NAVIGATION",
+
+    TEST_DATA = "TEST_DATA",
+
+    ENVIRONMENT = "ENVIRONMENT",
+
+    UNKNOWN = "UNKNOWN"
+
+}

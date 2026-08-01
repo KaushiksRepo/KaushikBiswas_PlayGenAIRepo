@@ -1,35 +1,30 @@
-import { promises as fs } from "fs";
-import * as path from "path";
 import { TestResult } from "../../Models/TestResult";
 
 export class PlaywrightReportParser {
 
-    async parse(projectRoot: string): Promise<TestResult[]> {
+    parse(reportJson: string): TestResult[] {
 
-        const reportPath = path.join(projectRoot, "playwright-report.json");
+    console.log(">>> Entered PlaywrightReportParser.parse()");
 
-        try {
+    try {
 
-            const reportExists = await fs.access(reportPath)
-                .then(() => true)
-                .catch(() => false);
+        const report = JSON.parse(reportJson);
 
-            if (!reportExists) {
-                return [];
-            }
+        console.log(">>> JSON parsed successfully");
+        console.log(">>> Suites:", report.suites?.length);
 
-            const reportContent = await fs.readFile(reportPath, "utf8");
-            const report = JSON.parse(reportContent);
+        return this.extractTestResults(report);
 
-            return this.extractTestResults(report);
+    } catch (error) {
 
-        } catch {
+        console.error(">>> JSON Parse Failed");
+        console.error(error);
 
-            return [];
-
-        }
+        return [];
 
     }
+
+}
 
     private extractTestResults(report: any): TestResult[] {
 

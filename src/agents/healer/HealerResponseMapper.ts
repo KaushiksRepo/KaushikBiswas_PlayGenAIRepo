@@ -1,12 +1,18 @@
 import { AIResponse } from "../../../ai-core/src/models/AIResponse";
-import { HealerResponse } from "./HealerResponse";
+import { HealResult } from "./Models/HealResult";
 
 export class HealerResponseMapper {
 
-    map(response: AIResponse): HealerResponse {
+    map(response: AIResponse): HealResult {
 
         return {
-            healedCode: response.output
+
+            healedCode: response.output,
+
+            success: true,
+
+            summary: "Healing completed successfully."
+
         };
 
     }

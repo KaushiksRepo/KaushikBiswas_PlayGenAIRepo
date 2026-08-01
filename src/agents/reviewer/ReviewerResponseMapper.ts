@@ -1,13 +1,11 @@
 import { AIResponse } from "../../../ai-core/src/models/AIResponse";
-import { ReviewerResponse } from "./ReviewerResponse";
+import { ReviewResult } from "./Reviewer_Models/ReviewResult";
 
 export class ReviewerResponseMapper {
 
-    map(response: AIResponse): ReviewerResponse {
+    map(response: AIResponse): ReviewResult {
 
-        return {
-            reviewComments: response.output
-        };
+        return JSON.parse(response.output);
 
     }
 

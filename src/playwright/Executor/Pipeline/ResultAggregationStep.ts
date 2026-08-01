@@ -13,9 +13,9 @@ export class ResultAggregationStep implements ExecutionStep {
         context: ExecutionContext
     ): Promise<void> {
 
-        const testResults = await this.reportParser.parse(
-            context.request.projectRoot
-        );
+        const testResults = this.reportParser.parse(
+    context.stdout
+);
 
         const passedTests = testResults.filter(
             t => t.status === "PASSED"

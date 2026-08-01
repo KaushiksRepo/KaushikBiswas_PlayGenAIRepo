@@ -1,3 +1,4 @@
+
 export interface WorkflowContext {
 
     requirement: string;
@@ -5,9 +6,5 @@ export interface WorkflowContext {
     testPlan?: string;
 
     generatedCode?: string;
-
-    reviewComments?: string;
-
-    healedCode?: string;
 
 }

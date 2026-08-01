@@ -16,7 +16,9 @@ async function main() {
 
     const result = await executor.execute(request);
 
+    console.log("Framework execution completed.");
     console.log(result);
+
 }
 
 main().catch(console.error);
