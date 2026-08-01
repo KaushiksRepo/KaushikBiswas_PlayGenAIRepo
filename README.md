@@ -1,78 +1,110 @@
-import { AIRequest } from "../../../ai-core/src/models/AIRequest";
-import { Provider } from "../../../ai-core/src/models/Provider";
-import { ReviewerRequest } from "./ReviewerRequest";
+import { PlannerAgent } from "../agents/planner/PlannerAgent";
+import { GeneratorAgent } from "../agents/generator/GeneratorAgent";
+import { ReviewerAgent } from "../agents/reviewer/ReviewerAgent";
+import { HealerAgent } from "../agents/healer/HealerAgent";
 
-export class ReviewerRequestMapper {
+import { AIWorkflowRequest } from "./AIWorkflowRequest";
+import { AIWorkflowResponse } from "./AIWorkflowResponse";
+import { WorkflowContext } from "./WorkflowContext";
 
-    map(request: ReviewerRequest): AIRequest {
+export class AIOrchestrator {
+
+    constructor(
+
+        private readonly planner: PlannerAgent,
+
+        private readonly generator: GeneratorAgent,
+
+        private readonly reviewer: ReviewerAgent,
+
+        private readonly healer: HealerAgent
+
+    ) {}
+
+    async execute(
+        request: AIWorkflowRequest
+    ): Promise<AIWorkflowResponse> {
+
+        const context: WorkflowContext = {
+            requirement: request.requirement
+        };
+
+        // Step 1 - Planning
+
+        const plannerResponse = await this.planner.plan({
+            requirement: context.requirement
+        });
+
+        context.testPlan = plannerResponse.testPlan;
+
+        // Step 2 - Code Generation
+
+        const generatorResponse = await this.generator.generate({
+            testPlan: context.testPlan
+        });
+
+        context.generatedCode = generatorResponse.generatedCode;
+
+        // Step 3 - Review
+
+        const reviewerResponse = await this.reviewer.review({
+            generatedCode: context.generatedCode
+        });
+
+        context.reviewComments = reviewerResponse.reviewComments;
+
+        // Step 4 - Healing
+
+        const healerResponse = await this.healer.heal({
+
+            generatedCode: context.generatedCode,
+
+            reviewComments: context.reviewComments
+
+        });
+
+        context.healedCode = healerResponse.healedCode;
 
         return {
-            provider: Provider.OPENAI,
-            model: "gpt-5.5",
-            template: "reviewer",
-            input: request.generatedCode
+
+            finalCode: context.healedCode
+
         };
 
     }
 
 }
 
-import { AIResponse } from "../../../ai-core/src/models/AIResponse";
-import { ReviewerResponse } from "./ReviewerResponse";
 
-export class ReviewerResponseMapper {
+export interface AIWorkflowRequest {
 
-    map(response: AIResponse): ReviewerResponse {
+    requirement: string;
 
-        return {
-            reviewComments: response.output
-        };
+    execute?: boolean;
 
-    }
+    review?: boolean;
+
+    heal?: boolean;
 
 }
 
 
+import { ExecutionResult } from "../playwright/Models/ExecutionResult";
+import { ReviewResult } from "../agents/reviewer/Reviewer_Models/ReviewResult";
+import { HealResult } from "../agents/healer/Models/HealResult";
 
-import { AIRequest } from "../../../ai-core/src/models/AIRequest";
-import { Provider } from "../../../ai-core/src/models/Provider";
-import { HealerRequest } from "./HealerRequest";
+export interface WorkflowContext {
 
-export class HealerRequestMapper {
+    requirement: string;
 
-    map(request: HealerRequest): AIRequest {
+    testPlan?: string;
 
-        return {
-            provider: Provider.OPENAI,
-            model: "gpt-5.5",
-            template: "healer",
-            input:
-`Generated Playwright Code:
+    generatedCode?: string;
 
-${request.generatedCode}
+    executionResult?: ExecutionResult;
 
-Review Feedback:
+    reviewResult?: ReviewResult;
 
-${request.reviewComments}`
-        };
-
-    }
-
-}
-
-
-
-import { AIResponse } from "../../../ai-core/src/models/AIResponse";
-import { HealerResponse } from "./HealerResponse";
-
-export class HealerResponseMapper {
-
-    map(response: AIResponse): HealerResponse {
-
-        return {
-            healedCode: response.output
-        };
-
-    }
+    healResult?: HealResult;
 
 }
