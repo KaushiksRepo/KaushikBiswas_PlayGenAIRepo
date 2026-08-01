@@ -1,62 +1,42 @@
-import { ExecutionContext } from "./ExecutionContext";
-import { ExecutionStep } from "./ExecutionStep";
-import { ExecutionStatus } from "../../Models/ExecutionStatus";
-import { PlaywrightReportParser } from "../Parser/PlaywrightReportParser";
+import { AIRequest } from "../models/AIRequest";
+import { AIResponse } from "../models/AIResponse";
+import { ProviderFactory } from "../factories/ProviderFactory";
+import { PromptEngine } from "./PromptEngine";
+import { ResponseValidator } from "../validation/ResponseValidator";
 
-export class ResultAggregationStep implements ExecutionStep {
+export class AICore {
 
-    constructor(
-        private readonly reportParser: PlaywrightReportParser
-    ) {}
+    private promptEngine = new PromptEngine();
+    private responseValidator = new ResponseValidator();
 
-    async execute(
-        context: ExecutionContext
-    ): Promise<void> {
+    async execute(request: AIRequest): Promise<AIResponse> {
 
-        const testResults = this.reportParser.parse(
-    context.stdout
-);
+        const finalPrompt = this.promptEngine.build(
+            request.template,
+            request.input
+        );
 
-        const passedTests = testResults.filter(
-            t => t.status === "PASSED"
-        ).length;
+        const provider = ProviderFactory.create(request.provider);
 
-        const failedTests = testResults.filter(
-            t => t.status === "FAILED"
-        ).length;
+        const response = await provider.generate({
+    ...request,
+    input: finalPrompt
+});
 
-        const skippedTests = testResults.filter(
-            t => t.status === "SKIPPED"
-        ).length;
+const validation = this.responseValidator.validate(response);
 
-        context.result = {
+console.log(validation);
 
-            status: context.exitCode === 0
-                ? ExecutionStatus.SUCCESS
-                : ExecutionStatus.FAILED,
 
-            exitCode: context.exitCode,
+if (!validation.valid) {
+    return {
+        ...response,
+        success: false,
+        error: validation.message
+    };
+}
 
-            executionTime: context.endTime - context.startTime,
-
-            passedTests,
-
-            failedTests,
-
-            skippedTests,
-
-            consoleLogs: context.stdout
-                ? context.stdout.split("\n")
-                : [],
-
-            errors: context.stderr
-                ? context.stderr.split("\n")
-                : [],
-
-            testResults
-
-        };
+return response;
 
     }
-
 }
