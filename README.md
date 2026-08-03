@@ -1,27 +1,42 @@
-import { AIRequest } from "../../../ai-core/src/models/AIRequest";
-import { Provider } from "../../../ai-core/src/models/Provider";
-import { ReviewerRequest } from "./ReviewerRequest";
+import { PlannerAgent } from "./agents/planner/PlannerAgent";
+import { GeneratorAgent } from "./agents/generator/GeneratorAgent";
 
-export class ReviewerRequestMapper {
+import { AICore } from "./../ai-core/src/services/aicore";
 
-    map(request: ReviewerRequest): AIRequest {
+async function main() {
 
-       return {
+    const aiCore = new AICore();
 
-    provider: Provider.MOCK,
+    const planner = new PlannerAgent(aiCore);
 
-    model: "mock-model",
+    const generator = new GeneratorAgent(aiCore);
 
-    template: "reviewer",
+    const requirement = `
+As a user,
+I want to login using valid credentials
+so that I can access the dashboard.
+`;
 
-    input: JSON.stringify(
-        request.executionResult,
-        null,
-        2
-    )
+    console.log("========== PLANNER ==========");
 
-};
+    const plannerResult = await planner.plan({
 
-    }
+        requirement
+
+    });
+
+    console.log(plannerResult);
+
+    console.log("========== GENERATOR ==========");
+
+    const generatorResult = await generator.generate({
+
+        testPlan: plannerResult.testPlan
+
+    });
+
+    console.log(generatorResult.generatedCode);
 
 }
+
+main().catch(console.error);
