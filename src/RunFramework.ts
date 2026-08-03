@@ -67,8 +67,8 @@ async function main() {
                  I want to login using valid credentials
                  so that I can access the dashboard.`,
 
-            projectRoot:
-                "V:\\PlayGenAI\\sample-playwright-project"
+          projectRoot:
+"C:\\Users\\TECHVITY\\Desktop\\myproject\\PlayGenAI\\KaushikBiswas_PlayGenAI\\sample-playwright-project"
 
         });
 
