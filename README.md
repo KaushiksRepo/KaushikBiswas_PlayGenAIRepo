@@ -1,42 +1,95 @@
-import { PlannerAgent } from "./agents/planner/PlannerAgent";
-import { GeneratorAgent } from "./agents/generator/GeneratorAgent";
+export class PlaywrightProjectGenerator {
 
-import { AICore } from "./../ai-core/src/services/aicore";
+    constructor(
+        private readonly writers: ArtifactWriter[]
+    ) {}
 
-async function main() {
 
-    const aiCore = new AICore();
 
-    const planner = new PlannerAgent(aiCore);
+    export class PlaywrightExecutor {
 
-    const generator = new GeneratorAgent(aiCore);
+    private readonly pipeline: ExecutionPipeline;
 
-    const requirement = `
-As a user,
-I want to login using valid credentials
-so that I can access the dashboard.
-`;
+    constructor() {
 
-    console.log("========== PLANNER ==========");
+        this.pipeline = new ExecutionPipeline([
 
-    const plannerResult = await planner.plan({
+            new ValidationStep(),
 
-        requirement
+            new CommandExecutionStep(
+                new CommandBuilder(),
+                new CommandRunner()
+            ),
 
-    });
+            new ResultAggregationStep(
+                new PlaywrightReportParser()
+            )
 
-    console.log(plannerResult);
+        ]);
 
-    console.log("========== GENERATOR ==========");
+    }
 
-    const generatorResult = await generator.generate({
 
-        testPlan: plannerResult.testPlan
 
-    });
+export class SpecFileWriter implements ArtifactWriter {
 
-    console.log(generatorResult.generatedCode);
+    constructor(
+        private readonly fileSystemService: FileSystemService
+    ) {}
+
+
+
+
+
+
+
+
+    import { promises as fs } from "fs";
+import * as path from "path";
+import { FileSystemService } from "./FileSystemService";
+
+export class NodeFileSystemService implements FileSystemService {
+
+    async createDirectory(directoryPath: string): Promise<void> {
+        await fs.mkdir(directoryPath, { recursive: true });
+    }
+
+    async writeFile(filePath: string, content: string): Promise<void> {
+
+        await this.createDirectory(path.dirname(filePath));
+
+        await fs.writeFile(filePath, content, "utf8");
+
+    }
+
+    async readFile(filePath: string): Promise<string> {
+        return await fs.readFile(filePath, "utf8");
+    }
+
+    async updateFile(filePath: string, content: string): Promise<void> {
+        await fs.writeFile(filePath, content, "utf8");
+    }
+
+    async deleteFile(filePath: string): Promise<void> {
+        await fs.unlink(filePath);
+    }
+
+    async exists(filePath: string): Promise<boolean> {
+
+        try {
+
+            await fs.access(filePath);
+
+            return true;
+
+        } catch {
+
+            return false;
+
+        }
+
+    }
 
 }
 
-main().catch(console.error);
+
