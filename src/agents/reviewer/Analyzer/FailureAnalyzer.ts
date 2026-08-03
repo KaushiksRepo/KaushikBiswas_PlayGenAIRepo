@@ -44,44 +44,44 @@ export class FailureAnalyzer {
     }
 
     private getProbableCause(
-        category: FailureCategory
-    ): string {
+    category: FailureCategory
+): string {
 
-        switch (category) {
+    switch (category) {
 
-            case FailureCategory.LOCATOR:
-                return "Locator may have changed.";
+        case FailureCategory.ENVIRONMENT:
+            return "Playwright browser executable is missing or not installed.";
 
-            case FailureCategory.TIMEOUT:
-                return "Application response exceeded timeout.";
+        case FailureCategory.LOCATOR:
+            return "Locator may have changed in the application.";
 
-            case FailureCategory.ASSERTION:
-                return "Expected value did not match actual value.";
+        case FailureCategory.TIMEOUT:
+            return "Application did not respond within the configured timeout.";
 
-            case FailureCategory.NETWORK:
-                return "Network communication failed.";
+        case FailureCategory.ASSERTION:
+            return "Actual result did not match the expected result.";
 
-            case FailureCategory.API:
-                return "Backend API returned an error.";
+        case FailureCategory.NETWORK:
+            return "Network connectivity issue detected.";
 
-            case FailureCategory.AUTHENTICATION:
-                return "Authentication or authorization failed.";
+        case FailureCategory.API:
+            return "Backend API returned an unexpected response.";
 
-            case FailureCategory.NAVIGATION:
-                return "Navigation to page failed.";
+        case FailureCategory.AUTHENTICATION:
+            return "Authentication or authorization failed.";
 
-            case FailureCategory.TEST_DATA:
-                return "Required test data may be missing.";
+        case FailureCategory.NAVIGATION:
+            return "Navigation to the requested page failed.";
 
-            case FailureCategory.ENVIRONMENT:
-                return "Execution environment issue detected.";
+        case FailureCategory.TEST_DATA:
+            return "Required test data is missing or invalid.";
 
-            default:
-                return "Unable to determine probable cause.";
-
-        }
+        default:
+            return "Unknown failure.";
 
     }
+
+}
 
     private getConfidence(
         category: FailureCategory
@@ -114,22 +114,30 @@ export class FailureAnalyzer {
 
     }
 
-    private shouldHeal(
-        category: FailureCategory
-    ): boolean {
+   private shouldHeal(
+    category: FailureCategory
+): boolean {
 
-        switch (category) {
+    switch (category) {
 
-            case FailureCategory.LOCATOR:
-            case FailureCategory.TIMEOUT:
-            case FailureCategory.ASSERTION:
-                return true;
+        case FailureCategory.LOCATOR:
+        case FailureCategory.ASSERTION:
+            return true;
 
-            default:
-                return false;
+        case FailureCategory.TIMEOUT:
+            return false;
 
-        }
+        case FailureCategory.ENVIRONMENT:
+            return false;
+
+        case FailureCategory.NETWORK:
+            return false;
+
+        default:
+            return false;
 
     }
 
 }
+
+    }

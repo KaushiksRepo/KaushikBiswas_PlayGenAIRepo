@@ -76,7 +76,7 @@ export class AIOrchestrator {
 
             browser: "chromium",
 
-            headed: false,
+            headed: true,
 
             workers: 1,
 

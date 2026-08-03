@@ -8,36 +8,80 @@ export class FailureClassifier {
 
         const text = error.toLowerCase();
 
-        if (text.includes("locator")) {
+        // Playwright / Environment
+
+        if (
+            text.includes("executable doesn't exist") ||
+            text.includes("browsertype.launch") ||
+            text.includes("playwright install") ||
+            text.includes("chrome-headless-shell")
+        ) {
+            return FailureCategory.ENVIRONMENT;
+        }
+
+        // Locator
+
+        if (
+            text.includes("locator") ||
+            text.includes("waiting for locator")
+        ) {
             return FailureCategory.LOCATOR;
         }
 
-        if (text.includes("expect")) {
+        // Assertion
+
+        if (
+            text.includes("expect") ||
+            text.includes("tohavetitle") ||
+            text.includes("tohaveurl")
+        ) {
             return FailureCategory.ASSERTION;
         }
 
-        if (text.includes("timeout")) {
+        // Timeout
+
+        if (
+            text.includes("timeout") ||
+            text.includes("timed out")
+        ) {
             return FailureCategory.TIMEOUT;
         }
 
-        if (text.includes("401")
-            || text.includes("403")) {
+        // Authentication
 
+        if (
+            text.includes("401") ||
+            text.includes("403")
+        ) {
             return FailureCategory.AUTHENTICATION;
         }
 
-        if (text.includes("500")
-            || text.includes("502")
-            || text.includes("503")) {
+        // API
 
+        if (
+            text.includes("500") ||
+            text.includes("502") ||
+            text.includes("503")
+        ) {
             return FailureCategory.API;
         }
 
-        if (text.includes("net::")) {
+        // Network
+
+        if (
+            text.includes("net::") ||
+            text.includes("err_name_not_resolved") ||
+            text.includes("connection refused")
+        ) {
             return FailureCategory.NETWORK;
         }
 
-        if (text.includes("navigation")) {
+        // Navigation
+
+        if (
+            text.includes("navigation") ||
+            text.includes("page.goto")
+        ) {
             return FailureCategory.NAVIGATION;
         }
 

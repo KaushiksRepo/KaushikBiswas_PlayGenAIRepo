@@ -52,36 +52,128 @@ test('Launch Browser', async ({ page }) => {
 
                 };
 
-            case "reviewer":
+             case "reviewer": {
 
-                return {
+    const prompt = request.input.toLowerCase();
 
-                    success: true,
+    let response;
 
-                    provider: "MOCK",
+    if (
+        prompt.includes("executable doesn't exist") ||
+        prompt.includes("chrome-headless-shell") ||
+        prompt.includes("browsertype.launch")
+    ) {
 
-                    model: "mock-model",
+        response = {
 
-                    output: JSON.stringify({
+            failureType: "ENVIRONMENT",
 
-                        failureType: "LOCATOR",
+            probableRootCause:
+                "Playwright browser binaries are not installed.",
 
-                        probableRootCause: "Login button locator changed.",
+            confidence: 100,
 
-                        confidence: 98,
+            suggestedFix:
+                "Run 'npx playwright install'.",
 
-                        suggestedFix: "Update locator using data-testid.",
+            shouldHeal: false,
 
-                        shouldHeal: true,
+            severity: "HIGH",
 
-                        severity: "HIGH",
+            aiExplanation:
+                "Browser executable is missing."
 
-                        aiExplanation:
-                            "Mock reviewer analysis."
+        };
 
-                    })
+    } else if (
+        prompt.includes("locator")
+    ) {
 
-                };
+        response = {
+
+            failureType: "LOCATOR",
+
+            probableRootCause:
+                "Locator may have changed.",
+
+            confidence: 95,
+
+            suggestedFix:
+                "Update the locator.",
+
+            shouldHeal: true,
+
+            severity: "HIGH",
+
+            aiExplanation:
+                "Locator failure detected."
+
+        };
+
+    } else if (
+        prompt.includes("timeout")
+    ) {
+
+        response = {
+
+            failureType: "TIMEOUT",
+
+            probableRootCause:
+                "Application did not respond within timeout.",
+
+            confidence: 92,
+
+            suggestedFix:
+                "Increase timeout or investigate application performance.",
+
+            shouldHeal: false,
+
+            severity: "MEDIUM",
+
+            aiExplanation:
+                "Timeout detected."
+
+        };
+
+    } else {
+
+        response = {
+
+            failureType: "UNKNOWN",
+
+            probableRootCause:
+                "Unable to determine the root cause.",
+
+            confidence: 60,
+
+            suggestedFix:
+                "Review execution logs.",
+
+            shouldHeal: false,
+
+            severity: "LOW",
+
+            aiExplanation:
+                "Unknown failure."
+
+        };
+
+    }
+
+    return {
+
+        success: true,
+
+        provider: "MOCK",
+
+        model: "mock-model",
+
+        output: JSON.stringify(response)
+
+    };
+
+}
+
 
             case "healer":
 
