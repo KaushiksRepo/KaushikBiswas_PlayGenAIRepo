@@ -1,73 +1,26 @@
-import { AICore } from "../../../ai-core/src/services/aicore";
+import { AIRequest } from "../../../ai-core/src/models/AIRequest";
+import { Provider } from "../../../ai-core/src/models/Provider";
+import { ReviewerRequest } from "./ReviewerRequest";
 
-import { ExecutionResult } from "../../playwright/Models/ExecutionResult";
+export class ReviewerRequestMapper {
 
-import { FailureAnalyzer } from "./Analyzer/FailureAnalyzer";
-import { ReviewPromptBuilder } from "./Prompt/ReviewPromptBuilder";
+    map(request: ReviewerRequest): AIRequest {
 
-import { ReviewerRequestMapper } from "./ReviewerRequestMapper";
-import { ReviewerResponseMapper } from "./ReviewerResponseMapper";
+       return {
 
-import { ReviewResult } from "./Reviewer_Models/ReviewResult";
-import { FailureType } from "./Reviewer_Models/FailureType";
-import { Severity } from "./Reviewer_Models/Severity";
+    provider: Provider.MOCK,
 
-export class ReviewerAgent {
+    model: "mock-model",
 
-    private readonly failureAnalyzer = new FailureAnalyzer();
+    template: "reviewer",
 
-    private readonly promptBuilder = new ReviewPromptBuilder();
+    input: JSON.stringify(
+        request.executionResult,
+        null,
+        2
+    )
 
-    private readonly requestMapper = new ReviewerRequestMapper();
-
-    private readonly responseMapper = new ReviewerResponseMapper();
-
-    constructor(
-        private readonly aiCore: AICore
-    ) {}
-
-    async review(
-        executionResult: ExecutionResult
-    ): Promise<ReviewResult> {
-
-        if (executionResult.status === "SUCCESS") {
-
-            return {
-
-                failureType: FailureType.NONE,
-
-                probableRootCause: "No issues detected.",
-
-                confidence: 100,
-
-                suggestedFix: "",
-
-                shouldHeal: false,
-
-                severity: Severity.LOW,
-
-                aiExplanation: "All tests executed successfully."
-
-            };
-
-        }
-
-        const analysis =
-            this.failureAnalyzer.analyze(executionResult);
-
-        const prompt =
-            this.promptBuilder.build(
-                executionResult,
-                analysis
-            );
-
-        const aiRequest =
-            this.requestMapper.map(prompt);
-
-        const aiResponse =
-            await this.aiCore.execute(aiRequest);
-
-        return this.responseMapper.map(aiResponse);
+};
 
     }
 
