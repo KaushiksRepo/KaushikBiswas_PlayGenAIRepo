@@ -40,17 +40,13 @@ export class MockProvider implements ILLMProvider {
                     output:
 `import { test, expect } from '@playwright/test';
 
-test('Login Test', async ({ page }) => {
+test('Launch Browser', async ({ page }) => {
 
-    await page.goto('https://example.com');
+    await page.goto('https://playwright.dev');
 
-    await page.locator('#username').fill('demo');
+    await page.waitForTimeout(5000);
 
-    await page.locator('#password').fill('demo');
-
-    await page.locator('#login').click();
-
-    await expect(page).toHaveURL(/dashboard/);
+    await expect(page).toHaveTitle(/Playwright/);
 
 });`
 
