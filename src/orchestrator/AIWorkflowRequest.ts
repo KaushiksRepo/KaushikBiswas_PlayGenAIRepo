@@ -8,4 +8,6 @@ export interface AIWorkflowRequest {
 
     heal?: boolean;
 
+    projectRoot: string;
+
 }

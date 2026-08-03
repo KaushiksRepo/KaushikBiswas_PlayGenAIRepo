@@ -7,7 +7,7 @@ export class GeneratorRequestMapper {
     map(request: GeneratorRequest): AIRequest {
 
         return {
-            provider: Provider.OPENAI,
+            provider: Provider.MOCK,
             model: "gpt-5.5",
             template: "generator",
             input: request.testPlan

@@ -7,9 +7,9 @@ export class ReviewerRequestMapper {
 
         return {
 
-            provider: Provider.OPENAI,
+            provider: Provider.MOCK,
 
-            model: "gpt-5.5",
+            model: "mock-model",
 
             template: "reviewer",
 

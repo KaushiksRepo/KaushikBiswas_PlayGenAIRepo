@@ -1,6 +1,13 @@
 export enum Provider {
+
     OPENAI = "OPENAI",
+
     CLAUDE = "CLAUDE",
+
     GEMINI = "GEMINI",
-    OLLAMA = "OLLAMA"
+
+    OLLAMA = "OLLAMA",
+
+    MOCK = "MOCK"
+
 }

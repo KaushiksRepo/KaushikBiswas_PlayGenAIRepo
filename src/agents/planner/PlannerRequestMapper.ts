@@ -7,7 +7,7 @@ export class PlannerRequestMapper {
     toAIRequest(request: PlannerRequest): AIRequest {
 
         return {
-            provider: Provider.OPENAI,
+            provider: Provider.MOCK,
             model: "gpt-5.5",
             template: "planner",
             input: request.requirement

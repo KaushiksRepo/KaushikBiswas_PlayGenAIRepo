@@ -1,41 +1,80 @@
+import { AICore } from "../ai-core/src/services/aicore";
+
 import { PlannerAgent } from "./agents/planner/PlannerAgent";
 import { GeneratorAgent } from "./agents/generator/GeneratorAgent";
+import { ReviewerAgent } from "./agents/reviewer/ReviewerAgent";
 
-import { AICore } from "./../ai-core/src/services/aicore";
+import { AIOrchestrator } from "./orchestrator/AIOrchestrator";
+
+import { PlaywrightExecutor } from "./playwright/Executor/PlaywrightExecutor";
+import { PlaywrightProjectGenerator } from "./playwright/Generator/PlaywrightProjectGenerator";
+
+import { NodeFileSystemService } from "./playwright/FileSystem/NodeFileSystemService";
+import { SpecFileWriter } from "./playwright/Writers/SpecFileWriter";
 
 async function main() {
 
+    // AI Core
+
     const aiCore = new AICore();
+
+    // AI Agents
 
     const planner = new PlannerAgent(aiCore);
 
     const generator = new GeneratorAgent(aiCore);
 
-    const requirement = `
-As a user,
-I want to login using valid credentials
-so that I can access the dashboard.
-`;
+    const reviewer = new ReviewerAgent(aiCore);
 
-    console.log("========== PLANNER ==========");
+    // Playwright Components
 
-    const plannerResult = await planner.plan({
+    const fileSystem = new NodeFileSystemService();
 
-        requirement
+    const specWriter = new SpecFileWriter(fileSystem);
 
-    });
+    const projectGenerator =
+        new PlaywrightProjectGenerator([
+            specWriter
+        ]);
 
-    console.log(plannerResult);
+    const executor =
+        new PlaywrightExecutor();
 
-    console.log("========== GENERATOR ==========");
+    // AI Orchestrator
 
-    const generatorResult = await generator.generate({
+    const orchestrator =
+        new AIOrchestrator(
 
-        testPlan: plannerResult.testPlan
+            planner,
 
-    });
+            generator,
 
-    console.log(generatorResult.generatedCode);
+            projectGenerator,
+
+            executor,
+
+            reviewer
+
+        );
+
+    // Execute Workflow
+
+    const result =
+        await orchestrator.execute({
+
+            requirement:
+                `As a user,
+                 I want to login using valid credentials
+                 so that I can access the dashboard.`,
+
+            projectRoot:
+                "V:\\PlayGenAI\\sample-playwright-project"
+
+        });
+
+    console.log("========== FINAL RESULT ==========");
+
+    console.log(result);
 
 }
 
