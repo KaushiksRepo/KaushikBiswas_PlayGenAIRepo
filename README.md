@@ -1,19 +1,44 @@
-import { ILLMProvider } from "../Interfaces/LLMProvider";
-import { Provider } from "../models/Provider";
-import { OpenAIProvider } from "../provider/OpenAIProvider";
+import { PlannerAgent } from "../agents/planner/PlannerAgent";
+import { GeneratorAgent } from "../agents/generator/GeneratorAgent";
 
-export class ProviderFactory {
+import { AIWorkflowRequest } from "./AIWorkflowRequest";
+import { AIWorkflowResponse } from "./AIWorkflowResponse";
 
-    static create(provider: Provider): ILLMProvider {
+export class AIOrchestrator {
 
-        switch (provider) {
+    constructor(
 
-            case Provider.OPENAI:
-                return new OpenAIProvider();
+        private readonly planner: PlannerAgent,
 
-            default:
-                throw new Error(`Provider '${provider}' is not supported.`);
-        }
-    }
+        private readonly generator: GeneratorAgent,
+
+
+    ) {}
+
+   async execute(
+    request: AIWorkflowRequest
+): Promise<AIWorkflowResponse> {
+
+    const plannerResponse =
+        await this.planner.plan({
+            requirement: request.requirement
+        });
+
+    const generatorResponse =
+        await this.generator.generate({
+            testPlan: plannerResponse.testPlan
+        });
+
+    return {
+
+        generatedCode:
+            generatorResponse.generatedCode,
+
+        finalCode:
+            generatorResponse.generatedCode
+
+    };
+
+}
 
 }
