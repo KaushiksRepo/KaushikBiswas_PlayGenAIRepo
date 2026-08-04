@@ -3,15 +3,15 @@ import { FailureAnalysis } from "../Analyzer/FailureAnalysis";
 
 export class ReviewPromptBuilder {
 
-    build(
-        executionResult: ExecutionResult,
-        analysis: FailureAnalysis
-    ): string {
+   build(
+    executionResult: ExecutionResult,
+    analysis: FailureAnalysis
+): string {
 
-        return `
+    return `
 You are a Senior Playwright Automation Architect.
 
-Analyze the following Playwright execution.
+Analyze ONLY the detected Playwright failure.
 
 Failure Category:
 ${analysis.category}
@@ -34,12 +34,6 @@ ${executionResult.passedTests}
 Failed Tests:
 ${executionResult.failedTests}
 
-Errors:
-${executionResult.errors.join("\n")}
-
-Console Logs:
-${executionResult.consoleLogs.join("\n")}
-
 Return ONLY valid JSON.
 
 {
@@ -53,6 +47,6 @@ Return ONLY valid JSON.
 }
 `;
 
-    }
+}
 
 }

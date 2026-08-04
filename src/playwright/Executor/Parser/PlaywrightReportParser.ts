@@ -4,21 +4,14 @@ export class PlaywrightReportParser {
 
     parse(reportJson: string): TestResult[] {
 
-    console.log(">>> Entered PlaywrightReportParser.parse()");
-
     try {
 
         const report = JSON.parse(reportJson);
-
-        console.log(">>> JSON parsed successfully");
-        console.log(">>> Suites:", report.suites?.length);
 
         return this.extractTestResults(report);
 
     } catch (error) {
 
-        console.error(">>> JSON Parse Failed");
-        console.error(error);
 
         return [];
 
@@ -26,39 +19,51 @@ export class PlaywrightReportParser {
 
 }
 
-    private extractTestResults(report: any): TestResult[] {
+private extractTestResults(report: any): TestResult[] {
 
-        const results: TestResult[] = [];
+    const results: TestResult[] = [];
 
-        const suites = report?.suites ?? [];
+    const suites = report?.suites ?? [];
 
-        for (const suite of suites) {
+    for (const suite of suites) {
 
-            for (const spec of suite.specs ?? []) {
+        for (const spec of suite.specs ?? []) {
 
-                for (const test of spec.tests ?? []) {
+            for (const test of spec.tests ?? []) {
 
-                    results.push({
+                // Find the first failed result (or fall back to the first result)
+                const failedResult =
+                    test.results?.find((r: any) => r.status === "failed")
+                    ?? test.results?.[0];
 
-                        testName: spec.title,
+                const errorMessage =
+                    failedResult?.error?.message
+                    ?? failedResult?.errors?.[0]?.message
+                    ?? test.error?.message
+                    ?? "";
 
-                        status: this.mapStatus(test.status),
 
-                        duration: test.results?.[0]?.duration ?? 0,
+                results.push({
 
-                        errorMessage: test.results?.[0]?.error?.message
+                    testName: spec.title,
 
-                    });
+                    status: this.mapStatus(test.status),
 
-                }
+                    duration: failedResult?.duration ?? 0,
+
+                    errorMessage
+
+                });
 
             }
 
         }
 
-        return results;
-
     }
+
+    return results;
+
+}
 
     private mapStatus(status: string): "PASSED" | "FAILED" | "SKIPPED" {
 

@@ -6,34 +6,37 @@ export class FailureDetector {
         executionResult: ExecutionResult
     ): string {
 
-        // 1. Framework errors
-        if (executionResult.errors.length > 0) {
-            return executionResult.errors.join("\n");
-        }
-
-        // 2. Playwright test errors
+        // Highest priority: parsed Playwright test failures
         for (const test of executionResult.testResults) {
 
-            const error = (test as any).error;
-
-            if (error) {
-
-                if (typeof error === "string") {
-                    return error;
-                }
-
-                if (error.message) {
-                    return error.message;
-                }
-
-                return JSON.stringify(error);
-
+            if (
+                test.status === "FAILED" &&
+                test.errorMessage &&
+                test.errorMessage.trim().length > 0
+            ) {
+                return test.errorMessage.trim();
             }
 
         }
 
-        // 3. Fallback to console logs
-        return executionResult.consoleLogs.join("\n");
+        // Second priority: real stderr (ignore npm noise)
+        const realErrors = executionResult.errors.filter(error => {
+
+            const text = error.trim().toLowerCase();
+
+            return (
+                text.length > 0 &&
+                !text.startsWith("npm notice") &&
+                !text.includes("playwright test")
+            );
+
+        });
+
+        if (realErrors.length > 0) {
+            return realErrors.join("\n");
+        }
+
+        return "Unknown failure";
 
     }
 

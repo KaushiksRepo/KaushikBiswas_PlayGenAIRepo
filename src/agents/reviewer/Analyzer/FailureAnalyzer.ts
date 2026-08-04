@@ -24,6 +24,10 @@ export class FailureAnalyzer {
         const error =
             this.detector.detect(executionResult);
 
+            console.log("========== DETECTED ERROR ==========");
+console.log(error);
+console.log("====================================");
+
         const category =
             this.classifier.classify(error);
 

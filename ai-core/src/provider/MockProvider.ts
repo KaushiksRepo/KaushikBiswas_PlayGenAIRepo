@@ -38,15 +38,13 @@ export class MockProvider implements ILLMProvider {
                     model: "mock-model",
 
                     output:
-`import { test, expect } from '@playwright/test';
+`import { test } from '@playwright/test';
 
-test('Launch Browser', async ({ page }) => {
+test('Navigation Timeout', async ({ page }) => {
 
-    await page.goto('https://playwright.dev');
+    page.setDefaultNavigationTimeout(1000);
 
-    await page.waitForTimeout(5000);
-
-    await expect(page).toHaveTitle(/Playwright/);
+    await page.goto('https://httpstat.us/200?sleep=10000');
 
 });`
 
@@ -56,107 +54,56 @@ test('Launch Browser', async ({ page }) => {
 
     const prompt = request.input.toLowerCase();
 
-    let response;
+    let failureType = "UNKNOWN";
+    let probableRootCause = "Unknown failure.";
+    let confidence = 60;
+    let suggestedFix = "Investigate the execution logs.";
+    let shouldHeal = false;
+    let severity = "MEDIUM";
+    let aiExplanation = "Unable to classify the failure.";
 
-    if (
-        prompt.includes("executable doesn't exist") ||
-        prompt.includes("chrome-headless-shell") ||
-        prompt.includes("browsertype.launch")
-    ) {
+    if (prompt.includes("failure category:\nassertion")) {
 
-        response = {
+        failureType = "ASSERTION";
+        probableRootCause = "Actual result did not match the expected result.";
+        confidence = 92;
+        suggestedFix = "Review the expected assertion or update the application behaviour.";
+        shouldHeal = false;
+        severity = "MEDIUM";
+        aiExplanation = "Assertion failure detected.";
 
-            failureType: "ENVIRONMENT",
+    }
+    else if (prompt.includes("failure category:\nlocator")) {
 
-            probableRootCause:
-                "Playwright browser binaries are not installed.",
+        failureType = "LOCATOR";
+        probableRootCause = "Locator may have changed.";
+        confidence = 95;
+        suggestedFix = "Update the locator strategy.";
+        shouldHeal = true;
+        severity = "HIGH";
+        aiExplanation = "Locator failure detected.";
 
-            confidence: 100,
+    }
+    else if (prompt.includes("failure category:\ntimeout")) {
 
-            suggestedFix:
-                "Run 'npx playwright install'.",
+        failureType = "TIMEOUT";
+        probableRootCause = "Application did not respond within the configured timeout.";
+        confidence = 90;
+        suggestedFix = "Increase timeout or investigate application performance.";
+        shouldHeal = false;
+        severity = "MEDIUM";
+        aiExplanation = "Timeout detected.";
 
-            shouldHeal: false,
+    }
+    else if (prompt.includes("failure category:\nenvironment")) {
 
-            severity: "HIGH",
-
-            aiExplanation:
-                "Browser executable is missing."
-
-        };
-
-    } else if (
-        prompt.includes("locator")
-    ) {
-
-        response = {
-
-            failureType: "LOCATOR",
-
-            probableRootCause:
-                "Locator may have changed.",
-
-            confidence: 95,
-
-            suggestedFix:
-                "Update the locator.",
-
-            shouldHeal: true,
-
-            severity: "HIGH",
-
-            aiExplanation:
-                "Locator failure detected."
-
-        };
-
-    } else if (
-        prompt.includes("timeout")
-    ) {
-
-        response = {
-
-            failureType: "TIMEOUT",
-
-            probableRootCause:
-                "Application did not respond within timeout.",
-
-            confidence: 92,
-
-            suggestedFix:
-                "Increase timeout or investigate application performance.",
-
-            shouldHeal: false,
-
-            severity: "MEDIUM",
-
-            aiExplanation:
-                "Timeout detected."
-
-        };
-
-    } else {
-
-        response = {
-
-            failureType: "UNKNOWN",
-
-            probableRootCause:
-                "Unable to determine the root cause.",
-
-            confidence: 60,
-
-            suggestedFix:
-                "Review execution logs.",
-
-            shouldHeal: false,
-
-            severity: "LOW",
-
-            aiExplanation:
-                "Unknown failure."
-
-        };
+        failureType = "ENVIRONMENT";
+        probableRootCause = "Execution environment is not configured correctly.";
+        confidence = 98;
+        suggestedFix = "Install browsers or fix the execution environment.";
+        shouldHeal = false;
+        severity = "HIGH";
+        aiExplanation = "Environment issue detected.";
 
     }
 
@@ -168,12 +115,21 @@ test('Launch Browser', async ({ page }) => {
 
         model: "mock-model",
 
-        output: JSON.stringify(response)
+        output: JSON.stringify({
+
+            failureType,
+            probableRootCause,
+            confidence,
+            suggestedFix,
+            shouldHeal,
+            severity,
+            aiExplanation
+
+        })
 
     };
 
 }
-
 
             case "healer":
 
