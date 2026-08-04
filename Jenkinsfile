@@ -8,6 +8,22 @@ pipeline {
 
     stages {
 
+        stage('Display Parameters') {
+
+    steps {
+
+        echo "Jira URL: ${params.JIRA_URL}"
+
+        echo "Browser: ${params.BROWSER}"
+
+        echo "LLM Provider: ${params.LLM_PROVIDER}"
+
+        echo "Headed: ${params.HEADED}"
+
+    }
+
+}
+
         stage('Checkout') {
 
             steps {
