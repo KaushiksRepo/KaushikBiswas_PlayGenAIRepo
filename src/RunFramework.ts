@@ -68,7 +68,7 @@ async function main() {
                  so that I can access the dashboard.`,
 
           projectRoot:
-"C:\\Users\\TECHVITY\\Desktop\\myproject\\PlayGenAI\\KaushikBiswas_PlayGenAI\\sample-playwright-project"
+"C:\\Users\\TECHVITY\\Desktop\\myproject\\PlayGenAI_KaushiksRepo\\KaushikBiswas_PlayGenAIRepo\\sample-playwright-project"
 
         });
 
