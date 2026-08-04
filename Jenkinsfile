@@ -6,25 +6,55 @@ pipeline {
         nodejs 'Node26'
     }
 
-    stages {
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(
+            numToKeepStr: '20',
+            artifactNumToKeepStr: '20'
+        ))
+    }
 
-        stage('Display Parameters') {
+    parameters {
 
-    steps {
+        string(
+            name: 'JIRA_URL',
+            defaultValue: 'https://company.atlassian.net/browse/AUTO-123',
+            description: 'Enter the Jira Story or Epic URL'
+        )
 
-        echo "Jira URL: ${params.JIRA_URL}"
+        choice(
+            name: 'BROWSER',
+            choices: [
+                'chromium',
+                'firefox',
+                'webkit'
+            ],
+            description: 'Select the browser'
+        )
 
-        echo "Browser: ${params.BROWSER}"
+        choice(
+            name: 'LLM_PROVIDER',
+            choices: [
+                'MOCK',
+                'OPENAI',
+                'GEMINI',
+                'CLAUDE'
+            ],
+            description: 'Select the AI Provider'
+        )
 
-        echo "LLM Provider: ${params.LLM_PROVIDER}"
-
-        echo "Headed: ${params.HEADED}"
+        booleanParam(
+            name: 'HEADED',
+            defaultValue: true,
+            description: 'Run Playwright in headed mode'
+        )
 
     }
 
-}
+    stages {
 
-        stage('Checkout') {
+        stage('Checkout Source') {
 
             steps {
                 checkout scm
@@ -42,15 +72,13 @@ pipeline {
 
         stage('Install Playwright Browsers') {
 
-    steps {
+            steps {
+                bat 'npx playwright install'
+            }
 
-        bat 'npx playwright install'
+        }
 
-    }
-
-}
-
-        stage('Build') {
+        stage('Build Project') {
 
             steps {
                 bat 'npm run build'
@@ -58,10 +86,40 @@ pipeline {
 
         }
 
-        stage('Run PlayGenAI') {
+        stage('Display Parameters') {
 
             steps {
+
+                echo "======================================"
+                echo "PlayGenAI Build Parameters"
+                echo "======================================"
+
+                echo "Jira URL      : ${params.JIRA_URL}"
+                echo "Browser       : ${params.BROWSER}"
+                echo "LLM Provider  : ${params.LLM_PROVIDER}"
+                echo "Headed        : ${params.HEADED}"
+
+                echo "======================================"
+
+            }
+
+        }
+
+        stage('Run PlayGenAI') {
+
+            environment {
+
+                JIRA_URL = "${params.JIRA_URL}"
+                BROWSER = "${params.BROWSER}"
+                LLM_PROVIDER = "${params.LLM_PROVIDER}"
+                HEADED = "${params.HEADED}"
+
+            }
+
+            steps {
+
                 bat 'npm run playgenai'
+
             }
 
         }
@@ -72,7 +130,22 @@ pipeline {
 
         always {
 
-            archiveArtifacts artifacts: '**/*', fingerprint: true
+            archiveArtifacts(
+                artifacts: '**/*',
+                fingerprint: true
+            )
+
+        }
+
+        success {
+
+            echo 'PlayGenAI pipeline completed successfully.'
+
+        }
+
+        failure {
+
+            echo 'PlayGenAI pipeline failed.'
 
         }
 
