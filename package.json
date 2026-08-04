@@ -4,6 +4,8 @@
   "description": "Enterprise-grade Playwright + Cucumber BDD automation framework",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
+    "playgenai": "tsx src/RunFramework.ts",
     "test": "cucumber-js",
     "test:smoke": "cucumber-js --tags @smoke",
     "test:regression": "cucumber-js --tags @regression",
