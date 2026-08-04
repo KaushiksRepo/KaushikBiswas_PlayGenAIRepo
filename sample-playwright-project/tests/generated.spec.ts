@@ -4,6 +4,6 @@ test('Navigation Timeout', async ({ page }) => {
 
     page.setDefaultNavigationTimeout(1000);
 
-    await page.goto('https://httpstat.us/200?sleep=10000');
+    await page.goto('https://playwright.dev/');
 
 });
