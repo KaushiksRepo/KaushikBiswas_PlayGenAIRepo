@@ -19,23 +19,34 @@ export class Application {
 
     static create(): AIOrchestrator {
 
+        // ==========================
         // AI Core
+        // ==========================
 
         const aiCore = new AICore();
 
+        // ==========================
         // AI Agents
+        // ==========================
 
-        const planner = new PlannerAgent(aiCore);
+        const planner =
+            new PlannerAgent(aiCore);
 
-        const generator = new GeneratorAgent(aiCore);
+        const generator =
+            new GeneratorAgent(aiCore);
 
-        const reviewer = new ReviewerAgent(aiCore);
+        const reviewer =
+            new ReviewerAgent(aiCore);
 
+        // ==========================
         // Playwright Components
+        // ==========================
 
-        const fileSystem = new NodeFileSystemService();
+        const fileSystem =
+            new NodeFileSystemService();
 
-        const specWriter = new SpecFileWriter(fileSystem);
+        const specWriter =
+            new SpecFileWriter(fileSystem);
 
         const projectGenerator =
             new PlaywrightProjectGenerator([
@@ -45,29 +56,33 @@ export class Application {
         const executor =
             new PlaywrightExecutor();
 
-        // AI Orchestrator
+// Requirement Provider
+// ==========================
 
-        const requirementProvider =
+const requirementProvider =
     RequirementProviderFactory.create(
         RequirementSource.JIRA
     );
 
+        // ==========================
+        // AI Orchestrator
+        // ==========================
 
-       return new AIOrchestrator(
+        return new AIOrchestrator(
 
-    requirementProvider,
+            requirementProvider,
 
-    planner,
+            planner,
 
-    generator,
+            generator,
 
-    projectGenerator,
+            projectGenerator,
 
-    executor,
+            executor,
 
-    reviewer
+            reviewer
 
-);
+        );
 
     }
 
