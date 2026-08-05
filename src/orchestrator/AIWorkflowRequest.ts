@@ -1,12 +1,10 @@
+import { RequirementSource } from "../requirement/Models/RequirementSource";
+
 export interface AIWorkflowRequest {
 
-    requirement: string;
+    requirementSource: RequirementSource;
 
-    execute?: boolean;
-
-    review?: boolean;
-
-    heal?: boolean;
+    requirementLocation: string;
 
     projectRoot: string;
 

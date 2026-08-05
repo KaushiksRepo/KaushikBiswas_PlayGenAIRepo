@@ -10,6 +10,8 @@ import { ExecutionRequest } from "../playwright/Models/ExecutionRequest";
 
 import { AIWorkflowRequest } from "./AIWorkflowRequest";
 import { AIWorkflowResponse } from "./AIWorkflowResponse";
+import { IRequirementProvider } from "../requirement/Provider/IRequirementProvider";
+
 
 export class AIOrchestrator {
 
@@ -17,17 +19,19 @@ export class AIOrchestrator {
 
     constructor(
 
-        private readonly planner: PlannerAgent,
+    private readonly requirementProvider: IRequirementProvider,
 
-        private readonly generator: GeneratorAgent,
+    private readonly planner: PlannerAgent,
 
-        private readonly projectGenerator: PlaywrightProjectGenerator,
+    private readonly generator: GeneratorAgent,
 
-        private readonly executor: PlaywrightExecutor,
+    private readonly projectGenerator: PlaywrightProjectGenerator,
 
-        private readonly reviewer: ReviewerAgent
+    private readonly executor: PlaywrightExecutor,
 
-    ) {}
+    private readonly reviewer: ReviewerAgent
+
+) {}
 
     async execute(
         request: AIWorkflowRequest
@@ -35,12 +39,22 @@ export class AIOrchestrator {
 
         // Step 1 - Planning
 
-        const plannerResponse =
-            await this.planner.plan({
+       const requirement =
+    await this.requirementProvider.getRequirement(
+        request.requirementLocation
+    );
 
-                requirement: request.requirement
+const plannerResponse =
+    await this.planner.plan({
 
-            });
+        requirement:
+`
+             Title: ${requirement.title}
+             Description: ${requirement.description}
+             Acceptance Criteria: ${requirement.acceptanceCriteria}
+`
+
+    });
 
         // Step 2 - Code Generation
 
