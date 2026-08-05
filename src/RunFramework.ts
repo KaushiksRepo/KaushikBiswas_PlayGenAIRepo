@@ -13,7 +13,7 @@ async function main() {
         requirementSource: RequirementSource.JIRA,
 
         requirementLocation:
-            "https://dummy-jira-url",
+            "https://kaushikbiswas.atlassian.net/browse/KAN-1",
 
         projectRoot:
             "C:\\Users\\TECHVITY\\Desktop\\myproject\\PlayGenAI_KaushiksRepo\\KaushikBiswas_PlayGenAIRepo\\sample-playwright-project"
