@@ -1,23 +1,30 @@
-import { Requirement } from "../../Models/Requirement";
 import { IRequirementProvider } from "../../Provider/IRequirementProvider";
+import { Requirement } from "../../Models/Requirement";
+import { JiraRestClient } from "./JiraRestClient";
+import { JiraStoryMapper } from "./JiraStoryMapper";
 
 export class JiraRequirementProvider implements IRequirementProvider {
 
+    constructor(
+
+        private readonly jiraRestClient: JiraRestClient,
+
+        private readonly storyMapper: JiraStoryMapper
+
+    ) {}
+
     async getRequirement(
-        //source: string
+        source: string
     ): Promise<Requirement> {
 
-        return {
 
-            title: "Jira Login Story",
+            console.log("========== JIRA REQUIREMENT PROVIDER ==========");
+    console.log("Source:", source);
+    
+        const jiraIssue =
+            await this.jiraRestClient.getStory(source);
 
-            description:
-                "User should login using valid credentials.",
-
-            acceptanceCriteria:
-                "Dashboard should be displayed."
-
-        };
+        return this.storyMapper.map(jiraIssue);
 
     }
 
