@@ -48,7 +48,7 @@ pipeline {
             name: 'HEADED',
             defaultValue: true,
             description: 'Run Playwright in headed mode'
-        )
+         )
 
     }
 
