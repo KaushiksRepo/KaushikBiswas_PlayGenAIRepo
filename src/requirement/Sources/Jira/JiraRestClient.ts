@@ -1,40 +1,53 @@
+import axios from "axios";
+
 import { JiraConfiguration } from "./JiraConfiguration";
+import { JiraIssueKeyExtractor } from "./JiraIssueKeyExtractor";
 
 export class JiraRestClient {
 
     constructor(
 
-        private readonly configuration: JiraConfiguration
+        private readonly configuration: JiraConfiguration,
+
+        private readonly issueKeyExtractor: JiraIssueKeyExtractor
 
     ) {}
 
     async getStory(
-        jiraUrl: string
+        jiraReference: string
     ): Promise<any> {
 
-        console.log("Reading Jira Story:", jiraUrl);
+        const issueKey =
+            this.issueKeyExtractor.extract(
+                jiraReference
+            );
 
-        console.log("Base URL:", this.configuration.baseUrl);
+        console.log("========== JIRA REST CLIENT ==========");
+        console.log("Issue Key:", issueKey);
 
-        return {
+        const url =
+            `${this.configuration.baseUrl}/rest/api/3/issue/${issueKey}`;
 
-            fields: {
+        const response =
+            await axios.get(url, {
 
-                summary: "Login Feature",
+                auth: {
 
-                description:
-`As a user,
-I want to login using valid credentials
-so that I can access the dashboard.`,
+                    username: this.configuration.email,
 
-                acceptanceCriteria:
-`User enters username
-User enters password
-Dashboard is displayed.`
+                    password: this.configuration.apiToken
 
-            }
+                },
 
-        };
+                headers: {
+
+                    Accept: "application/json"
+
+                }
+
+            });
+
+        return response.data;
 
     }
 

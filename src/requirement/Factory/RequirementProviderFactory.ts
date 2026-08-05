@@ -8,6 +8,7 @@ import { JiraConfiguration } from "../Sources/Jira/JiraConfiguration";
 
 import { AzureDevOpsRequirementProvider } from "../Sources/AzureDevops/AzureDevOpsRequirementProvider";
 import { TextFileRequirementProvider } from "../Sources/Text/TextFileRequirementProvider";
+import { JiraIssueKeyExtractor } from "../Sources/Jira/JiraIssueKeyExtractor";
 
 export class RequirementProviderFactory {
 
@@ -32,8 +33,16 @@ export class RequirementProviderFactory {
 
                 };
 
-                const client =
-                    new JiraRestClient(configuration);
+                const issueKeyExtractor =
+                  new JiraIssueKeyExtractor();
+
+                const client = new JiraRestClient(
+
+                   configuration,
+
+                    issueKeyExtractor
+
+                  );
 
                 const mapper =
                     new JiraStoryMapper();
