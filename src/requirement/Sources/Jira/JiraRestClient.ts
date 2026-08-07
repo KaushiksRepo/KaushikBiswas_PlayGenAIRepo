@@ -28,26 +28,60 @@ export class JiraRestClient {
         const url =
             `${this.configuration.baseUrl}/rest/api/3/issue/${issueKey}`;
 
-        const response =
-            await axios.get(url, {
+        console.log("Calling:", url);
 
-                auth: {
+        try {
 
-                    username: this.configuration.email,
+            const response =
+                await axios.get(url, {
 
-                    password: this.configuration.apiToken
+                    auth: {
 
-                },
+                        username:
+                            this.configuration.email,
 
-                headers: {
+                        password:
+                            this.configuration.apiToken
 
-                    Accept: "application/json"
+                    },
 
-                }
+                    headers: {
 
-            });
+                        Accept: "application/json"
 
-        return response.data;
+                    }
+
+                });
+
+            console.log("Jira API Call Successful");
+
+            return response.data;
+
+        }
+        catch (error: any) {
+
+            console.error("========== JIRA API ERROR ==========");
+
+            if (error.response) {
+
+                console.error(
+                    JSON.stringify(
+                        error.response.data,
+                        null,
+                        2
+                    )
+                );
+
+            }
+            else {
+
+                console.error(error.message);
+
+            }
+
+            throw error;
+
+        }
 
     }
 
