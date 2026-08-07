@@ -10,16 +10,13 @@ import { ExecutionRequest } from "../playwright/Models/ExecutionRequest";
 
 import { AIWorkflowRequest } from "./AIWorkflowRequest";
 import { AIWorkflowResponse } from "./AIWorkflowResponse";
-import { IRequirementProvider } from "../requirement/Provider/IRequirementProvider";
-
+import { RequirementProviderFactory } from "../requirement/Factory/RequirementProviderFactory";
 
 export class AIOrchestrator {
 
     private readonly artifactMapper = new GeneratedArtifactMapper();
 
-    constructor(
-
-    private readonly requirementProvider: IRequirementProvider,
+   constructor(
 
     private readonly planner: PlannerAgent,
 
@@ -39,20 +36,20 @@ export class AIOrchestrator {
 
         // Step 1 - Planning
 
-       const requirement =
-    await this.requirementProvider.getRequirement(
+      const requirementProvider =
+    RequirementProviderFactory.create(
+        request.requirementSource
+    );
+
+const requirement =
+    await requirementProvider.getRequirement(
         request.requirementLocation
     );
 
 const plannerResponse =
     await this.planner.plan({
 
-        requirement:
-`
-             Title: ${requirement.title}
-             Description: ${requirement.description}
-             Acceptance Criteria: ${requirement.acceptanceCriteria}
-`
+        requirement
 
     });
 

@@ -1,5 +1,7 @@
+import { Requirement } from "../../requirement/Models/Requirement";
+
 export interface PlannerRequest {
 
-    requirement: string;
+    requirement: Requirement;
 
 }

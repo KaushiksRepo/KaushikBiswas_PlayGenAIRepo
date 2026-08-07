@@ -8,4 +8,14 @@ export interface AIWorkflowRequest {
 
     projectRoot: string;
 
+    browser?: string;
+
+    headed?: boolean;
+
+    workers?: number;
+
+    retries?: number;
+
+    timeout?: number;
+
 }

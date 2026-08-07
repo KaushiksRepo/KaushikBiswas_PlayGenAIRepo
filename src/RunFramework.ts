@@ -1,6 +1,39 @@
 import { Application } from "./bootstrap/Application";
 import { RequirementSource } from "./requirement/Models/RequirementSource";
 
+function getArgument(name: string): string {
+
+    const argument = process.argv.find(arg =>
+        arg.startsWith(`--${name}=`)
+    );
+
+    if (!argument) {
+        throw new Error(`Missing command line argument: --${name}`);
+    }
+
+    return argument.substring(argument.indexOf("=") + 1);
+
+}
+
+function getRequirementSource(value: string): RequirementSource {
+
+    switch (value.toLowerCase()) {
+
+        case "jira":
+            return RequirementSource.JIRA;
+
+        case "azure":
+            return RequirementSource.AZURE_DEVOPS;
+
+        case "text":
+            return RequirementSource.TEXT_FILE;
+
+        default:
+            throw new Error(`Unsupported requirement source: ${value}`);
+
+    }
+
+}
 
 async function main() {
 
@@ -8,17 +41,20 @@ async function main() {
         Application.create();
 
     const result =
-    await orchestrator.execute({
+        await orchestrator.execute({
 
-        requirementSource: RequirementSource.JIRA,
+            requirementSource:
+                getRequirementSource(
+                    getArgument("source")
+                ),
 
-        requirementLocation:
-            "https://kaushikbiswas.atlassian.net/browse/KAN-1",
+            requirementLocation:
+                getArgument("location"),
 
-        projectRoot:
-            "C:\\Users\\TECHVITY\\Desktop\\myproject\\PlayGenAI_KaushiksRepo\\KaushikBiswas_PlayGenAIRepo\\sample-playwright-project"
+            projectRoot:
+                getArgument("project")
 
-    });
+        });
 
     console.log("========== FINAL RESULT ==========");
 

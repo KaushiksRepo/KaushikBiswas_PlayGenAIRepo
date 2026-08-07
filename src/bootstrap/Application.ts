@@ -12,8 +12,6 @@ import { PlaywrightProjectGenerator } from "../playwright/Generator/PlaywrightPr
 import { NodeFileSystemService } from "../playwright/FileSystem/NodeFileSystemService";
 import { SpecFileWriter } from "../playwright/Writers/SpecFileWriter";
 
-import { RequirementProviderFactory } from "../requirement/Factory/RequirementProviderFactory";
-import { RequirementSource } from "../requirement/Models/RequirementSource";
 
 export class Application {
 
@@ -59,30 +57,24 @@ export class Application {
 // Requirement Provider
 // ==========================
 
-const requirementProvider =
-    RequirementProviderFactory.create(
-        RequirementSource.JIRA
-    );
 
         // ==========================
         // AI Orchestrator
         // ==========================
 
-        return new AIOrchestrator(
+      return new AIOrchestrator(
 
-            requirementProvider,
+    planner,
 
-            planner,
+    generator,
 
-            generator,
+    projectGenerator,
 
-            projectGenerator,
+    executor,
 
-            executor,
+    reviewer
 
-            reviewer
-
-        );
+);
 
     }
 

@@ -1,14 +1,16 @@
 import { Requirement } from "../../Models/Requirement";
+import { JiraADFParser } from "./JiraADFParser";
 
 export class JiraStoryMapper {
+
+    private readonly adfParser =
+        new JiraADFParser();
 
     map(
         jiraIssue: any
     ): Requirement {
 
         console.log("========== JIRA STORY MAPPER ==========");
-        console.log("Raw Jira Issue:");
-        console.log(JSON.stringify(jiraIssue, null, 2));
 
         const requirement: Requirement = {
 
@@ -16,16 +18,24 @@ export class JiraStoryMapper {
                 jiraIssue.fields.summary ?? "",
 
             description:
-                jiraIssue.fields.description ?? "",
+                this.adfParser.parse(
+                    jiraIssue.fields.description
+                ),
 
             acceptanceCriteria:
-                jiraIssue.fields.acceptanceCriteria ?? ""
+                this.adfParser.parse(
+                    jiraIssue.fields.acceptanceCriteria
+                )
 
         };
 
-        console.log("Mapped Requirement:");
-        console.log(JSON.stringify(requirement, null, 2));
-        console.log("=======================================");
+        console.log(
+            JSON.stringify(
+                requirement,
+                null,
+                2
+            )
+        );
 
         return requirement;
 

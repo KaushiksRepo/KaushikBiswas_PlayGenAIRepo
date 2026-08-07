@@ -17,10 +17,26 @@ pipeline {
 
     parameters {
 
+        choice(
+            name: 'REQUIREMENT_SOURCE',
+            choices: [
+                'JIRA',
+                'AZURE_DEVOPS',
+                'TEXT_FILE'
+            ],
+            description: 'Select the requirement source'
+        )
+
         string(
-            name: 'JIRA_URL',
-            defaultValue: 'https://company.atlassian.net/browse/AUTO-123',
-            description: 'Enter the Jira Story or Epic URL'
+            name: 'REQUIREMENT_LOCATION',
+            defaultValue: '',
+            description: 'Requirement Location (Jira URL, Azure DevOps URL or Text File Path)'
+        )
+
+        string(
+            name: 'PROJECT_ROOT',
+            defaultValue: 'sample-playwright-project',
+            description: 'Playwright Project Root'
         )
 
         choice(
@@ -30,7 +46,7 @@ pipeline {
                 'firefox',
                 'webkit'
             ],
-            description: 'Select the browser'
+            description: 'Browser'
         )
 
         choice(
@@ -41,15 +57,32 @@ pipeline {
                 'GEMINI',
                 'CLAUDE'
             ],
-            description: 'Select the AI Provider'
+            description: 'AI Provider'
+        )
+
+        string(
+            name: 'WORKERS',
+            defaultValue: '1',
+            description: 'Number of Playwright Workers'
+        )
+
+        string(
+            name: 'RETRIES',
+            defaultValue: '0',
+            description: 'Number of Retries'
+        )
+
+        string(
+            name: 'TIMEOUT',
+            defaultValue: '30000',
+            description: 'Execution Timeout (ms)'
         )
 
         booleanParam(
             name: 'HEADED',
             defaultValue: true,
-            description: 'Run Playwright in headed mode'
-         )
-
+            description: 'Run browser in headed mode'
+        )
     }
 
     stages {
@@ -90,16 +123,21 @@ pipeline {
 
             steps {
 
-                echo "======================================"
+                echo "========================================"
                 echo "PlayGenAI Build Parameters"
-                echo "======================================"
+                echo "========================================"
 
-                echo "Jira URL      : ${params.JIRA_URL}"
-                echo "Browser       : ${params.BROWSER}"
-                echo "LLM Provider  : ${params.LLM_PROVIDER}"
-                echo "Headed        : ${params.HEADED}"
+                echo "Requirement Source   : ${params.REQUIREMENT_SOURCE}"
+                echo "Requirement Location : ${params.REQUIREMENT_LOCATION}"
+                echo "Project Root         : ${params.PROJECT_ROOT}"
+                echo "Browser              : ${params.BROWSER}"
+                echo "LLM Provider         : ${params.LLM_PROVIDER}"
+                echo "Workers              : ${params.WORKERS}"
+                echo "Retries              : ${params.RETRIES}"
+                echo "Timeout              : ${params.TIMEOUT}"
+                echo "Headed               : ${params.HEADED}"
 
-                echo "======================================"
+                echo "========================================"
 
             }
 
@@ -107,18 +145,20 @@ pipeline {
 
         stage('Run PlayGenAI') {
 
-            environment {
-
-                JIRA_URL = "${params.JIRA_URL}"
-                BROWSER = "${params.BROWSER}"
-                LLM_PROVIDER = "${params.LLM_PROVIDER}"
-                HEADED = "${params.HEADED}"
-
-            }
-
             steps {
 
-                bat 'npm run playgenai'
+                bat """
+                npx tsx src/RunFramework.ts ^
+                --source=${params.REQUIREMENT_SOURCE} ^
+                --location="${params.REQUIREMENT_LOCATION}" ^
+                --project="${params.PROJECT_ROOT}" ^
+                --browser=${params.BROWSER} ^
+                --provider=${params.LLM_PROVIDER} ^
+                --workers=${params.WORKERS} ^
+                --retries=${params.RETRIES} ^
+                --timeout=${params.TIMEOUT} ^
+                --headed=${params.HEADED}
+                """
 
             }
 
@@ -139,13 +179,17 @@ pipeline {
 
         success {
 
-            echo 'PlayGenAI pipeline completed successfully.'
+            echo '========================================'
+            echo 'PlayGenAI Pipeline Completed Successfully'
+            echo '========================================'
 
         }
 
         failure {
 
-            echo 'PlayGenAI pipeline failed.'
+            echo '========================================'
+            echo 'PlayGenAI Pipeline Failed'
+            echo '========================================'
 
         }
 
