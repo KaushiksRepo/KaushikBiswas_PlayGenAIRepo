@@ -12,6 +12,8 @@ import { PlaywrightProjectGenerator } from "../playwright/Generator/PlaywrightPr
 import { NodeFileSystemService } from "../playwright/FileSystem/NodeFileSystemService";
 import { SpecFileWriter } from "../playwright/Writers/SpecFileWriter";
 
+import { HealerAgent } from "../agents/healer/HealerAgent";
+
 
 export class Application {
 
@@ -35,6 +37,9 @@ export class Application {
 
         const reviewer =
             new ReviewerAgent(aiCore);
+
+            const healer =
+    new HealerAgent(aiCore);
 
         // ==========================
         // Playwright Components
@@ -72,7 +77,9 @@ export class Application {
 
     executor,
 
-    reviewer
+    reviewer,
+
+    healer
 
 );
 

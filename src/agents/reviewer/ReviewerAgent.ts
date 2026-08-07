@@ -65,9 +65,14 @@ export class ReviewerAgent {
             this.requestMapper.map(prompt);
 
         const aiResponse =
-            await this.aiCore.execute(aiRequest);
+    await this.aiCore.execute(aiRequest);
 
-        return this.responseMapper.map(aiResponse);
+const reviewResult =
+    this.responseMapper.map(aiResponse);
+
+reviewResult.failureAnalysis = analysis;
+
+return reviewResult;
 
     }
 

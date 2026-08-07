@@ -12,6 +12,8 @@ import { AIWorkflowRequest } from "./AIWorkflowRequest";
 import { AIWorkflowResponse } from "./AIWorkflowResponse";
 import { RequirementProviderFactory } from "../requirement/Factory/RequirementProviderFactory";
 
+import { HealerAgent } from "../agents/healer/HealerAgent";
+
 export class AIOrchestrator {
 
     private readonly artifactMapper = new GeneratedArtifactMapper();
@@ -26,7 +28,10 @@ export class AIOrchestrator {
 
     private readonly executor: PlaywrightExecutor,
 
-    private readonly reviewer: ReviewerAgent
+    private readonly reviewer: ReviewerAgent,
+
+        private readonly healer: HealerAgent
+
 
 ) {}
 
@@ -103,28 +108,68 @@ const plannerResponse =
             );
 
         // Step 6 - AI Review
+let finalCode =
+    generatorResponse.generatedCode;
 
-       const reviewerResponse =
+let healResult;
+
+let finalExecutionResult =
+    executionResult;
+
+let finalReviewResult =
     await this.reviewer.review(
         executionResult
     );
 
-        // Step 7 - Return workflow response
+if (finalReviewResult.shouldHeal) {
 
-        return {
+    console.log("================================");
+    console.log("AI Healing Started");
+    console.log("================================");
 
-            generatedCode:
-                generatorResponse.generatedCode,
+    healResult =
+        await this.healer.heal({
 
-            finalCode:
-                generatorResponse.generatedCode,
+            executionResult:
+                finalExecutionResult,
 
-            executionResult,
+            failureAnalysis:
+                finalReviewResult.failureAnalysis!,
 
             reviewResult:
-                reviewerResponse
+                finalReviewResult,
 
-        };
+            generatedCode:
+                generatorResponse.generatedCode
+
+        });
+
+    finalCode =
+        healResult.healedCode;
+
+    console.log("================================");
+    console.log("AI Healing Completed");
+    console.log("================================");
+
+}
+
+        // Step 7 - Return workflow response
+return {
+
+    generatedCode:
+        generatorResponse.generatedCode,
+
+    finalCode,
+
+    executionResult:
+        finalExecutionResult,
+
+    reviewResult:
+        finalReviewResult,
+
+    healResult
+
+};
 
     }
 
