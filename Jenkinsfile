@@ -6,6 +6,16 @@ pipeline {
         nodejs 'Node26'
     }
 
+    environment {
+
+    JIRA_BASE_URL = credentials('JIRA_BASE_URL')
+
+    JIRA_EMAIL = credentials('JIRA_EMAIL')
+
+    JIRA_API_TOKEN = credentials('JIRA_API_TOKEN')
+
+}
+
     options {
         timestamps()
         disableConcurrentBuilds()
