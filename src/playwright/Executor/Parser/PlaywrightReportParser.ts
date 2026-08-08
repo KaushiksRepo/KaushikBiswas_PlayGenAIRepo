@@ -32,15 +32,25 @@ private extractTestResults(report: any): TestResult[] {
             for (const test of spec.tests ?? []) {
 
                 // Find the first failed result (or fall back to the first result)
-                const failedResult =
-                    test.results?.find((r: any) => r.status === "failed")
-                    ?? test.results?.[0];
+               const failedResult =
+    test.results?.find((r: any) => r.status === "failed")
+    ?? test.results?.[0];
 
-                const errorMessage =
-                    failedResult?.error?.message
-                    ?? failedResult?.errors?.[0]?.message
-                    ?? test.error?.message
-                    ?? "";
+console.log("========== FAILED RESULT ==========");
+console.log(
+    JSON.stringify(
+        failedResult,
+        null,
+        2
+    )
+);
+console.log("==================================");
+
+const errorMessage =
+    failedResult?.error?.message
+    ?? failedResult?.errors?.[0]?.message
+    ?? test.error?.message
+    ?? "";
 
 
                 results.push({
