@@ -6,6 +6,16 @@ export class FailureDetector {
         executionResult: ExecutionResult
     ): string {
 
+        console.log("========== TEST RESULTS ==========");
+console.log(
+    JSON.stringify(
+        executionResult.testResults,
+        null,
+        2
+    )
+);
+console.log("==================================");
+
         // Highest priority: parsed Playwright test failures
         for (const test of executionResult.testResults) {
 
