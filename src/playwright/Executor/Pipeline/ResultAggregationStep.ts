@@ -29,11 +29,23 @@ export class ResultAggregationStep implements ExecutionStep {
             t => t.status === "SKIPPED"
         ).length;
 
+
+        console.log("========== RESULT AGGREGATION ==========");
+console.log("Exit Code    :", context.exitCode);
+console.log("Passed Tests :", passedTests);
+console.log("Failed Tests :", failedTests);
+console.log("Skipped Tests:", skippedTests);
+console.log("========================================");
+
         context.result = {
 
-            status: context.exitCode === 0
-                ? ExecutionStatus.SUCCESS
-                : ExecutionStatus.FAILED,
+          status:
+
+    context.exitCode !== 0 || failedTests > 0
+
+        ? ExecutionStatus.FAILED
+
+        : ExecutionStatus.SUCCESS,
 
             exitCode: context.exitCode,
 
