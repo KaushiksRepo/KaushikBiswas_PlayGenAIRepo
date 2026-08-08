@@ -14,9 +14,12 @@ import { RequirementProviderFactory } from "../requirement/Factory/RequirementPr
 
 import { HealerAgent } from "../agents/healer/HealerAgent";
 
+import { HealedProjectUpdater } from "../playwright/Updater/HealedProjectUpdater";
+
 export class AIOrchestrator {
 
     private readonly artifactMapper = new GeneratedArtifactMapper();
+    private readonly healedProjectUpdater =new HealedProjectUpdater();
 
    constructor(
 
@@ -107,25 +110,54 @@ const plannerResponse =
                 executionRequest
             );
 
-        // Step 6 - AI Review
+            
+             // Step 6 - Review + Healing Loop
+
+const MAX_HEALING_ATTEMPTS = 3;
+
 let finalCode =
     generatorResponse.generatedCode;
-
-let healResult;
 
 let finalExecutionResult =
     executionResult;
 
 let finalReviewResult =
     await this.reviewer.review(
-        executionResult
+        finalExecutionResult
     );
 
-if (finalReviewResult.shouldHeal) {
+    console.log("================================");
+console.log("AI Review Result");
+console.log("================================");
 
-    console.log("================================");
-    console.log("AI Healing Started");
-    console.log("================================");
+console.log("Failure Type  :", finalReviewResult.failureType);
+console.log("Should Heal   :", finalReviewResult.shouldHeal);
+console.log("Is Healable   :", finalReviewResult.isHealable);
+console.log("Explanation   :", finalReviewResult.aiExplanation);
+
+console.log("================================");
+
+let healResult;
+
+let healingAttempt = 0;
+
+while (
+
+    finalReviewResult.shouldHeal &&
+
+    finalReviewResult.isHealable &&
+
+    healingAttempt < MAX_HEALING_ATTEMPTS
+
+)
+
+{
+
+    healingAttempt++;
+
+    console.log("========================================");
+    console.log(`AI Healing Attempt ${healingAttempt}`);
+    console.log("========================================");
 
     healResult =
         await this.healer.heal({
@@ -140,16 +172,69 @@ if (finalReviewResult.shouldHeal) {
                 finalReviewResult,
 
             generatedCode:
-                generatorResponse.generatedCode
+                finalCode
 
         });
 
     finalCode =
         healResult.healedCode;
 
+    await this.healedProjectUpdater.update(
+
+        request.projectRoot,
+
+        finalCode
+
+    );
+
+    finalExecutionResult =
+        await this.executor.execute(
+            executionRequest
+        );
+
+    finalReviewResult =
+        await this.reviewer.review(
+            finalExecutionResult
+        );
+
+    if (!finalReviewResult.shouldHeal) {
+
+        console.log("========================================");
+        console.log("Healing Successful");
+        console.log("========================================");
+
+        break;
+
+    }
+
+}
+
+if (
+
+    finalReviewResult.shouldHeal &&
+
+    !finalReviewResult.isHealable
+
+) {
+
     console.log("================================");
-    console.log("AI Healing Completed");
+    console.log("AI decided this failure cannot");
+    console.log("be healed automatically.");
     console.log("================================");
+
+}
+
+if (
+
+    finalReviewResult.shouldHeal &&
+
+    healingAttempt == MAX_HEALING_ATTEMPTS
+
+) {
+
+    console.log("========================================");
+    console.log("Maximum Healing Attempts Reached");
+    console.log("========================================");
 
 }
 

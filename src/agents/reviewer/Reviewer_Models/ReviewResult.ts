@@ -14,6 +14,8 @@ export interface ReviewResult {
 
     shouldHeal: boolean;
 
+    isHealable: boolean;
+
     severity: Severity;
 
     aiExplanation: string;

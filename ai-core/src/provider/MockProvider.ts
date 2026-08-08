@@ -131,20 +131,28 @@ test('Navigation Timeout', async ({ page }) => {
 
 }
 
-            case "healer":
+           case "healer":
 
-                return {
+    return {
 
-                    success: true,
+        success: true,
 
-                    provider: "MOCK",
+        provider: "MOCK",
 
-                    model: "mock-model",
+        model: "mock-model",
 
-                    output:
-`// Mock healed Playwright code`
+        output:
+`import { test, expect } from '@playwright/test';
 
-                };
+test('Recovered Login Test', async ({ page }) => {
+
+    await page.goto('https://playwright.dev/');
+
+    await expect(page).toHaveTitle(/Playwright/);
+
+});`
+
+    };
 
             default:
 

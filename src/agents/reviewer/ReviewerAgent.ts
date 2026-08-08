@@ -32,23 +32,25 @@ export class ReviewerAgent {
 
         if (executionResult.status === "SUCCESS") {
 
-            return {
+           return {
 
-                failureType: FailureType.NONE,
+    failureType: FailureType.NONE,
 
-                probableRootCause: "No issues detected.",
+    probableRootCause: "No issues detected.",
 
-                confidence: 100,
+    confidence: 100,
 
-                suggestedFix: "",
+    suggestedFix: "",
 
-                shouldHeal: false,
+    shouldHeal: false,
 
-                severity: Severity.LOW,
+    isHealable: false,
 
-                aiExplanation: "All tests executed successfully."
+    severity: Severity.LOW,
 
-            };
+    aiExplanation: "All tests executed successfully."
+
+};
 
         }
 
